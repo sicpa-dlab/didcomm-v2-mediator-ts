@@ -1,4 +1,5 @@
 import { AuthModule } from '@common/auth'
+import { DidcommModule } from '@common/didcomm'
 import { LoggerFactory } from '@logger'
 import { ClassSerializerInterceptor, Module, ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -8,7 +9,7 @@ import { AgentModule } from './agent'
 import { CommonModule } from './common'
 
 @Module({
-  imports: [CommonModule, AgentModule, AuthModule],
+  imports: [CommonModule, AgentModule, AuthModule, DidcommModule],
 })
 export class MainModule {
   public static async bootstrap() {

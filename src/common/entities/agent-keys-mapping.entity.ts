@@ -8,7 +8,7 @@ export class AgentKeysMapping extends Identified {
   @Property()
   public kid: string
 
-  @ManyToOne(() => Agent)
+  @ManyToOne(() => Agent, { onDelete: 'cascade' })
   public agent: Agent
 
   constructor(props: Omit<AgentKeysMapping, keyof Identified>) {

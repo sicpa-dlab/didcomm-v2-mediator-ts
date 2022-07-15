@@ -1,6 +1,6 @@
 import { AgentDeliveryType } from '@common/entities/agent.entity'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsEnum, IsObject } from 'class-validator'
+import { IsEnum, IsString } from 'class-validator'
 
 export namespace UpdateRequest {
   export class Agent {
@@ -9,8 +9,8 @@ export namespace UpdateRequest {
     public readonly deliveryType!: AgentDeliveryType
 
     @ApiProperty()
-    @IsObject()
-    public readonly deliveryData!: object
+    @IsString()
+    public readonly deliveryData!: string
   }
 
   export namespace Swagger {

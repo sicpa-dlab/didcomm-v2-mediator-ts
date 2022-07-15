@@ -1,5 +1,5 @@
 import { ApiIdRequest } from '@common/decorators/api-id-request.decorator'
-import { IdRequest, IdResponse, ResponseWrapper } from '@common/dto'
+import { IdRequest, IdResponse, MessageResponse, ResponseWrapper } from '@common/dto'
 import { InjectLogger, Logger } from '@logger'
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
 import {
@@ -13,7 +13,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger'
 import { AgentService } from './agent.service'
-import { CreateRequest, GetResponse, UpdateRequest } from './dto'
+import { CreateRequest, UpdateRequest } from './dto'
 
 @ApiTags('Agents')
 @Controller('v1/agents')
@@ -51,11 +51,11 @@ export class AgentController {
   @ApiOperation({ summary: 'Get agent mediation record data.' })
   @ApiOkResponse({
     description: 'Agent mediation record data.',
-    type: GetResponse.Swagger.GetResponseAgent,
+    type: MessageResponse.Message,
   })
   @ApiIdRequest()
   @Get(':id')
-  public async get(@Param() params: IdRequest.Id): Promise<ResponseWrapper<GetResponse.Agent>> {
+  public async get(@Param() params: IdRequest.Id): Promise<ResponseWrapper<MessageResponse.Message>> {
     const logger = this.logger.child('get', { params })
     logger.trace('>')
 
