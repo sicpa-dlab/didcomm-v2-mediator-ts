@@ -19,7 +19,7 @@ export class DidcommDidResolverService implements DIDResolver {
   public async resolve(did: string): Promise<DidcommDidDoc | null> {
     const didDoc = await this.resolverService.resolve(did)
 
-    if (!didDoc || !didDoc.verificationMethod.length) {
+    if (!didDoc) {
       throw new Error(`Unable to resolve DIDDoc for ${did}`)
     }
 

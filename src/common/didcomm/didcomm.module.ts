@@ -8,6 +8,6 @@ import { DidcommDidResolverService, DidResolverService, SecretsResolverService }
     LoggerModule.forFeature([DidcommService, DidResolverService, DidcommDidResolverService, SecretsResolverService]),
   ],
   providers: [DidcommService, DidResolverService, DidcommDidResolverService, SecretsResolverService],
-  exports: [DidcommService, DidResolverService],
+  exports: [DidcommService],
 })
 export class DidcommModule {}

@@ -2,14 +2,14 @@ import { PageInfo } from '.'
 import { ResponseWrapper } from './response-wrapper'
 
 export class PaginatedResponseWrapper<T> extends ResponseWrapper<T[]> {
-  public readonly total: number
+  public readonly remaining: number
   public readonly offset: number
-  public readonly limit: number
+  public readonly count: number
 
   constructor(data: T[], pageInfo: PageInfo) {
     super(data)
-    this.total = pageInfo.total
+    this.remaining = pageInfo.remaining
     this.offset = pageInfo.offset
-    this.limit = pageInfo.limit
+    this.count = pageInfo.count
   }
 }

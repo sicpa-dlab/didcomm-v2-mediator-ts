@@ -1,11 +1,11 @@
 export class PageInfo {
-  public readonly total: number
+  public readonly remaining: number
   public readonly offset: number
-  public readonly limit: number
+  public readonly count: number
 
   constructor(props: PageInfo) {
-    this.total = props.total
+    this.remaining = props.remaining
     this.offset = props.offset
-    this.limit = props.limit
+    this.count = props.count
   }
 }

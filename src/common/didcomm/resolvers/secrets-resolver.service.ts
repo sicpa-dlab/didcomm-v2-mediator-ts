@@ -3,6 +3,7 @@ import { InjectLogger, Logger } from '@logger'
 import { Injectable } from '@nestjs/common'
 import { ConfigService, ConfigType } from '@nestjs/config'
 import { KeyType } from '@sicpa-dlab/peer-did-ts'
+import { throwError } from '@utils/common'
 import { Secret, SecretsResolver } from 'didcomm-node'
 
 const keyTypesMapping = {
@@ -26,12 +27,9 @@ export class SecretsResolverService implements SecretsResolver {
     const _logger = logger.child('constructor')
     _logger.trace('>')
 
-    const didcommConfig = configService.get<ConfigType<typeof DidcommConfig>>('didcomm')
+    this.didcommConfig =
+      configService.get<ConfigType<typeof DidcommConfig>>('didcomm') ?? throwError('Didcomm config is not defined')
 
-    if (!didcommConfig) throw new Error('Didcomm config is not defined')
-    _logger.traceObject(didcommConfig)
-
-    this.didcommConfig = didcommConfig
     _logger.trace('<')
   }
 

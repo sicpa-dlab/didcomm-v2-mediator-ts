@@ -1,35 +1,37 @@
-import { AgentKeysMapping } from '@common/entities/agent-keys-mapping.entity'
-import { Collection, Entity, Enum, JsonType, OneToMany, Property } from '@mikro-orm/core'
-import { DidDocument } from '@sicpa-dlab/peer-did-ts'
+import { AgentMessage } from '@common/entities/agent-message.entity'
+import { AgentRegisteredDid } from '@common/entities/agent-registered-did.entity'
+import { Collection, Entity, Enum, Index, OneToMany, Property } from '@mikro-orm/core'
 import { Identified } from './identified.entity'
 
 @Entity()
 export class Agent extends Identified {
   @Property()
+  @Index()
   public did: string
 
-  @Property({ type: JsonType })
-  public didDoc: DidDocument
+  @Enum({ items: () => AgentDeliveryType, nullable: true })
+  public deliveryType?: AgentDeliveryType
 
-  @Enum(() => AgentDeliveryType)
-  public deliveryType: AgentDeliveryType
+  @Property({ nullable: true })
+  public deliveryData?: string
 
-  @Property()
-  public deliveryData: string
+  @OneToMany(() => AgentMessage, (message) => message.agent, { orphanRemoval: true })
+  public messages: Collection<AgentMessage> = new Collection<AgentMessage>(this)
 
-  @Property({ type: JsonType })
-  public messages: Map<string, string> = new Map<string, string>()
+  @OneToMany(() => AgentRegisteredDid, (registeredDid) => registeredDid.agent, { orphanRemoval: true })
+  public registeredDids: Collection<AgentRegisteredDid> = new Collection<AgentRegisteredDid>(this)
 
-  @OneToMany(() => AgentKeysMapping, (keyMapping) => keyMapping.agent)
-  public keysMappings: Collection<AgentKeysMapping> = new Collection<AgentKeysMapping>(this)
-
-  constructor(props: Omit<Agent, keyof Identified | 'messages' | 'keysMappings'>) {
+  constructor(props: Omit<Agent, keyof Identified | 'messages' | 'registeredDids'>) {
     super()
     this.did = props.did
-    this.didDoc = props.didDoc
     this.deliveryType = props.deliveryType
     this.deliveryData = props.deliveryData
   }
+}
+
+export enum AgentReferenceFields {
+  RegisteredDids = 'registeredDids',
+  Messages = 'messages',
 }
 
 export enum AgentDeliveryType {

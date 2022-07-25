@@ -1,16 +1,13 @@
+import { EncryptedMessage } from '@common/didcomm/messages'
 import { DidcommDidResolverService, SecretsResolverService } from '@common/didcomm/resolvers'
 import { InjectLogger, Logger } from '@logger'
 import { Injectable } from '@nestjs/common'
+import { convertToPlainJson } from '@utils/json'
 import { IMessage, Message } from 'didcomm-node'
 
 export interface PackMessageParams {
   toDID: string
   fromDID: string | null | undefined
-  signByDID: string | null | undefined
-}
-
-export interface PackMessageSignedParams {
-  signByDID: string
 }
 
 @Injectable()
@@ -24,8 +21,8 @@ export class DidcommService {
     this.logger.child('constructor').trace('<>')
   }
 
-  public async packMessageEncrypted(payload: IMessage, params: PackMessageParams): Promise<string> {
-    const logger = this.logger.child('create', { payload, params })
+  public async packMessageEncrypted(payload: IMessage, params: PackMessageParams): Promise<EncryptedMessage> {
+    const logger = this.logger.child('packMessageEncrypted', { payload, params })
     logger.trace('>')
 
     const message = new Message(payload)
@@ -35,27 +32,28 @@ export class DidcommService {
     const [encryptedMsg] = await message.pack_encrypted(
       params.toDID,
       params.fromDID || null,
-      params.signByDID || null,
+      null,
       this.didResolverService,
       this.secretsResolverService,
       {},
     )
-    return encryptedMsg
+
+    logger.trace('<')
+    return EncryptedMessage.fromJson(encryptedMsg)
   }
 
-  public async packMessageSigned(payload: any, params: PackMessageSignedParams): Promise<string> {
-    const message = new Message(payload)
+  public async unpackMessage(packedMessage: EncryptedMessage): Promise<IMessage> {
+    const logger = this.logger.child('unpackMessage', { packedMessage })
+    logger.trace('>')
 
-    const [encryptedMsg] = await message.pack_signed(
-      params.signByDID,
+    const [unpackedMsg] = await Message.unpack(
+      convertToPlainJson(packedMessage),
       this.didResolverService,
       this.secretsResolverService,
+      {},
     )
-    return encryptedMsg
-  }
 
-  public async unpackMessage(packedMessage: string): Promise<Message> {
-    const [unpackedMsg] = await Message.unpack(packedMessage, this.didResolverService, this.secretsResolverService, {})
-    return unpackedMsg
+    logger.trace('<')
+    return unpackedMsg.as_value()
   }
 }

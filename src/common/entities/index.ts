@@ -1,3 +1,4 @@
 export { Identified } from './identified.entity'
 export { Agent } from './agent.entity'
-export { AgentKeysMapping } from './agent-keys-mapping.entity'
+export { AgentRegisteredDid } from './agent-registered-did.entity'
+export { AgentMessage } from './agent-message.entity'

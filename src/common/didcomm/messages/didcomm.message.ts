@@ -3,18 +3,15 @@ import type { Attachment } from 'didcomm'
 import { Expose } from 'class-transformer'
 import { IsArray, IsNumber, IsOptional, IsString, Matches } from 'class-validator'
 
-import { JsonEncoder } from '@sicpa-dlab/peer-did-ts'
 import { v4 } from 'uuid'
 
 export const MessageIdRegExp = /[-_./a-zA-Z0-9]{8,64}/
 export const MessageTypeRegExp = /(.*?)([a-zA-Z0-9._-]+)\/(\d[^/]*)\/([a-zA-Z0-9._-]+)$/
 
-export const ATTACHMENT_MEDIA_TYPE = 'application/json'
-
 export type DidcommMessageParams = {
   id?: string
   from?: string
-  to?: string
+  to?: string[]
   thid?: string
   pthid?: string
   created_time?: number
@@ -77,7 +74,7 @@ export class DidcommMessage {
     if (options) {
       this.id = options.id || this.generateId()
       this.from = options.from
-      this.to = options.to ? [options.to] : undefined
+      this.to = options.to
       this.thid = options.thid
       this.pthid = options.pthid
       this.created_time = options.created_time
@@ -90,42 +87,5 @@ export class DidcommMessage {
 
   public generateId() {
     return v4()
-  }
-
-  public static createJSONAttachment<T>(id: string, message: T): Attachment {
-    return {
-      id,
-      media_type: ATTACHMENT_MEDIA_TYPE,
-      data: {
-        json: message,
-      },
-    }
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public static createBase64Attachment<T>(id: string, message: T): Attachment {
-    return {
-      id,
-      media_type: ATTACHMENT_MEDIA_TYPE,
-      data: {
-        base64: JsonEncoder.toBase64(message),
-      },
-    }
-  }
-
-  public getAttachmentDataAsJson(id: string) {
-    if (!this.attachments) return null
-    const attachment = this.attachments?.find((it) => it.id === id)
-    if (!attachment) return null
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const data = attachment.data as any // FIXME: didcomm package doesn't provide convenient way to process attachment
-    if (typeof data.base64 === 'string') {
-      return JsonEncoder.fromBase64(data.base64)
-    } else if (data.json) {
-      return data.json
-    } else {
-      return null
-    }
   }
 }

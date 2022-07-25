@@ -5,11 +5,13 @@ import { ClassSerializerInterceptor, Module, ValidationPipe } from '@nestjs/comm
 import { ConfigService } from '@nestjs/config'
 import { NestFactory, Reflector } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import bodyParser from 'body-parser'
 import { AgentModule } from './agent'
 import { CommonModule } from './common'
+import { MediatorModule } from './mediator'
 
 @Module({
-  imports: [CommonModule, AgentModule, AuthModule, DidcommModule],
+  imports: [CommonModule, MediatorModule, AgentModule, AuthModule, DidcommModule],
 })
 export class MainModule {
   public static async bootstrap() {
@@ -23,6 +25,7 @@ export class MainModule {
 
     const app = await NestFactory.create(MainModule, {
       logger: loggerFactory.getNestLogger(),
+      bodyParser: true,
     })
 
     app.useGlobalPipes(
@@ -41,6 +44,11 @@ export class MainModule {
 
     if (expressConfig.enableCors) {
       app.enableCors(expressConfig.corsOptions)
+    }
+
+    // Workaround for request body parsing issue https://github.com/nestjs/nest/issues/2625
+    if (expressConfig.jsonContentHeaders) {
+      app.use(bodyParser.json({ type: expressConfig.jsonContentHeaders }))
     }
 
     app.setGlobalPrefix(expressConfig.prefix)
