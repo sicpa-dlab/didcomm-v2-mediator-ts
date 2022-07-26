@@ -27,7 +27,7 @@
     "typeRoots": ["src/types"]
   },
   "include": [
-    "src/**/*", "health-monitor.ts"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",

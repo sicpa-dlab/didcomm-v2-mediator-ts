@@ -32,8 +32,8 @@
           "primary": false,
           "nullable": true,
           "enumItems": [
-            "mobile",
-            "web"
+            "Push",
+            "WebHook"
           ],
           "mappedType": "enum"
         },

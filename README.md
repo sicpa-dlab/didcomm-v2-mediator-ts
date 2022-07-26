@@ -81,7 +81,7 @@ $ npm run test:cov
 
 ```bash
 # Run prettier to auto-format all source code
-$ npm run format
+$ npm run style:fix
 
 # Produce linter report
 $ npm run lint

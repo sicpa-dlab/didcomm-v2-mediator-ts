@@ -1,4 +1,3 @@
-import { AuthModule } from '@common/auth'
 import { DidcommModule } from '@common/didcomm'
 import { LoggerFactory } from '@logger'
 import { ClassSerializerInterceptor, Module, ValidationPipe } from '@nestjs/common'
@@ -11,7 +10,7 @@ import { CommonModule } from './common'
 import { MediatorModule } from './mediator'
 
 @Module({
-  imports: [CommonModule, MediatorModule, AgentModule, AuthModule, DidcommModule],
+  imports: [CommonModule, MediatorModule, AgentModule, DidcommModule],
 })
 export class MainModule {
   public static async bootstrap() {
@@ -55,11 +54,9 @@ export class MainModule {
 
     const options = new DocumentBuilder()
       .setTitle(`Cloud agent mediator`)
-      // .addTag('Auth')
-      .addTag('Agents')
+      .addTag('Mediator')
       .setDescription(`Cloud agent mediator`)
       .setVersion('1')
-      // .addBearerAuth()
       .build()
 
     const document = SwaggerModule.createDocument(app, options)

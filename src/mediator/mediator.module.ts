@@ -1,5 +1,6 @@
 import { DidcommModule } from '@common/didcomm'
 import { LoggerModule } from '@common/logger'
+import { HttpModule } from '@nestjs/axios'
 import { Module } from '@nestjs/common'
 import { AgentModule } from '../agent'
 import { MediatorController } from './mediator.controller'
@@ -17,6 +18,7 @@ import { RouterService } from './services/router.service'
       MessagePickupService,
       MediatorController,
     ]),
+    HttpModule,
     DidcommModule,
     AgentModule,
   ],

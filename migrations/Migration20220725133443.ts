@@ -1,9 +1,9 @@
 import { Migration } from '@mikro-orm/migrations';
 
-export class Migration20220720212213 extends Migration {
+export class Migration20220725133443 extends Migration {
 
   async up(): Promise<void> {
-    this.addSql('create table "agent" ("id" varchar(255) not null, "did" varchar(255) not null, "delivery_type" text check ("delivery_type" in (\'mobile\', \'web\')) null, "delivery_data" varchar(255) null);');
+    this.addSql('create table "agent" ("id" varchar(255) not null, "did" varchar(255) not null, "delivery_type" text check ("delivery_type" in (\'Push\', \'WebHook\')) null, "delivery_data" varchar(255) null);');
     this.addSql('create index "agent_did_index" on "agent" ("did");');
     this.addSql('alter table "agent" add constraint "agent_pkey" primary key ("id");');
 

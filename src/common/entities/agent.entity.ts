@@ -35,6 +35,9 @@ export enum AgentReferenceFields {
 }
 
 export enum AgentDeliveryType {
-  Mobile = 'mobile',
-  Web = 'web',
+  // Deliver received messages using push notifications
+  Push = 'Push',
+
+  // Deliver received messages using registered web hook
+  WebHook = 'WebHook',
 }
