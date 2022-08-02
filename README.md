@@ -89,3 +89,8 @@ $ npm run lint
 # ...with auto-fix
 $ npm run lint:fix
 ```
+
+## Mediation Invitation
+
+Find Mediator provisioning invitation URL in the service output under `MEDIATOR PROVISIONING INVITATION` log statement.
+By default, Mediator starts at `http://localhost:3000`. In order to use Mediator outside you local host you need to set `EXPRESS_PUBLIC_URL` environment variable.

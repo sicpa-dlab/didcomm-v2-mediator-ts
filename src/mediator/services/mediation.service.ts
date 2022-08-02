@@ -1,4 +1,5 @@
 import { DidcommForwardMessage, DidcommService } from '@common/didcomm'
+import { DidcommContext } from '@common/didcomm/providers'
 import { AgentRegisteredDidReferenceFields } from '@common/entities/agent-registered-did.entity'
 import { AgentDeliveryType } from '@common/entities/agent.entity'
 import DidcommConfig from '@config/didcomm'
@@ -24,6 +25,7 @@ export class MediationService {
     private readonly agentsService: AgentService,
     private readonly didcommService: DidcommService,
     private readonly httpService: HttpService,
+    private readonly didcommContext: DidcommContext,
     private readonly em: EntityManager,
     @InjectLogger(MediationService)
     private readonly logger: Logger,
@@ -52,17 +54,17 @@ export class MediationService {
       await this.agentsService.create({ did: msg.from, ...msg.body })
 
       res = new MediationGrantMessage({
-        from: this.didcommConfig.mediatorDid,
+        from: this.didcommContext.did,
         to: [msg.from],
         body: {
-          routingKeys: [this.didcommConfig.mediatorDid],
+          routingKeys: [this.didcommContext.did],
           endpoint: `${this.expressConfig.publicUrl}/api/v1`,
         },
       })
     } catch (e: any) {
       logger.error({ res }, 'Error')
       res = new MediationDenyMessage({
-        from: this.didcommConfig.mediatorDid,
+        from: this.didcommContext.did,
         to: [msg.from],
       })
     }
@@ -117,7 +119,7 @@ export class MediationService {
 
     if (deliveryType === AgentDeliveryType.WebHook) {
       const deliveryMsg = new BatchResponseMessage({
-        from: this.didcommConfig.mediatorDid,
+        from: this.didcommContext.did,
         to: [agent.did],
         body: new MessagesResponse({
           messages: msg.attachments.map((it) => new MessageAttachment({ id: it.id || generateId(), message: it })),

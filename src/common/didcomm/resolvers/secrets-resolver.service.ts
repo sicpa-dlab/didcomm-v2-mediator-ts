@@ -1,10 +1,8 @@
-import DidcommConfig from '@config/didcomm'
 import { InjectLogger, Logger } from '@logger'
 import { Injectable } from '@nestjs/common'
-import { ConfigService, ConfigType } from '@nestjs/config'
 import { KeyType } from '@sicpa-dlab/peer-did-ts'
-import { throwError } from '@utils/common'
 import { Secret, SecretsResolver } from 'didcomm-node'
+import { DidcommContext } from '../providers'
 
 const keyTypesMapping = {
   [KeyType.Ed25519]: 'Ed25519VerificationKey2018',
@@ -17,29 +15,21 @@ const keyTypesMapping = {
 
 @Injectable()
 export class SecretsResolverService implements SecretsResolver {
-  private readonly didcommConfig: ConfigType<typeof DidcommConfig>
-
   constructor(
+    private readonly didcommContext: DidcommContext,
     @InjectLogger(SecretsResolverService)
     private readonly logger: Logger,
-    configService: ConfigService,
   ) {
-    const _logger = logger.child('constructor')
-    _logger.trace('>')
-
-    this.didcommConfig =
-      configService.get<ConfigType<typeof DidcommConfig>>('didcomm') ?? throwError('Didcomm config is not defined')
-
-    _logger.trace('<')
+    logger.child('constructor').trace('<>')
   }
 
   public async find_secrets(secret_ids: Array<string>): Promise<Array<string>> {
     const logger = this.logger.child('find_secrets')
     logger.trace({ secret_ids }, '>')
 
-    const { mediatorKid } = this.didcommConfig
+    const { kid } = this.didcommContext
 
-    const foundSecrets = secret_ids.includes(mediatorKid) ? [mediatorKid] : []
+    const foundSecrets = secret_ids.includes(kid) ? [kid] : []
 
     logger.trace({ foundSecrets }, '<')
     return foundSecrets
@@ -49,15 +39,15 @@ export class SecretsResolverService implements SecretsResolver {
     const logger = this.logger.child('get_secret')
     logger.trace({ secret_id }, '>')
 
-    const { mediatorKid, mediatorPrivateKey } = this.didcommConfig
+    const { kid, privateKey } = this.didcommContext
 
-    if (secret_id !== mediatorKid || !mediatorPrivateKey) return null
+    if (secret_id !== kid || !privateKey) return null
 
     logger.trace('<')
     return {
-      id: mediatorKid,
+      id: kid,
       type: keyTypesMapping[KeyType.X25519],
-      secret_material: { format: 'Base58', value: mediatorPrivateKey },
+      secret_material: { format: 'Base58', value: privateKey },
     }
   }
 }

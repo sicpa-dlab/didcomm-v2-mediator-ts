@@ -1,10 +1,8 @@
-import DidcommConfig from '@config/didcomm'
+import { DidcommContext } from '@common/didcomm/providers'
 import { Agent } from '@entities'
 import { InjectLogger, Logger } from '@logger'
 import { EntityManager, QueryOrder } from '@mikro-orm/core'
 import { Injectable } from '@nestjs/common'
-import { ConfigService, ConfigType } from '@nestjs/config'
-import { throwError } from '@utils/common'
 import {
   BatchPickupMessage,
   BatchResponseMessage,
@@ -18,21 +16,13 @@ import {
 
 @Injectable()
 export class MessagePickupService {
-  private readonly didcommConfig: ConfigType<typeof DidcommConfig>
-
   constructor(
+    private readonly didcommContext: DidcommContext,
     @InjectLogger(MessagePickupService)
     private readonly logger: Logger,
     private readonly em: EntityManager,
-    configService: ConfigService,
   ) {
-    const _logger = this.logger.child('constructor')
-    _logger.trace('<')
-
-    this.didcommConfig =
-      configService.get<ConfigType<typeof DidcommConfig>>('didcomm') ?? throwError('Didcomm config is not defined')
-
-    _logger.trace('<')
+    this.logger.child('constructor').trace('<>')
   }
 
   public async processStatusRequest(msg: StatusRequestMessage): Promise<StatusResponseMessage> {
@@ -45,7 +35,7 @@ export class MessagePickupService {
     const messageCount = await agent.messages.loadCount()
 
     const res = new StatusResponseMessage({
-      from: this.didcommConfig.mediatorDid,
+      from: this.didcommContext.did,
       to: [agent.did],
       body: { messageCount },
     })
@@ -67,7 +57,7 @@ export class MessagePickupService {
     logger.trace({ messages })
 
     const res = new BatchResponseMessage({
-      from: this.didcommConfig.mediatorDid,
+      from: this.didcommContext.did,
       to: [agent.did],
       body: new MessagesResponse({
         messages: messages.map((it) => new MessageAttachment({ id: it.id, message: it.payload })),
@@ -94,7 +84,7 @@ export class MessagePickupService {
     logger.trace({ messages })
 
     const res = new ListResponseMessage({
-      from: this.didcommConfig.mediatorDid,
+      from: this.didcommContext.did,
       to: [agent.did],
       body: new MessagesResponse({
         messages: messages.map((it) => new MessageAttachment({ id: it.id, message: it.payload })),

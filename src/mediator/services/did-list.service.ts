@@ -1,12 +1,10 @@
+import { DidcommContext } from '@common/didcomm/providers'
 import { PageInfo } from '@common/dto'
 import { AgentReferenceFields } from '@common/entities/agent.entity'
-import DidcommConfig from '@config/didcomm'
 import { Agent, AgentRegisteredDid } from '@entities'
 import { InjectLogger, Logger } from '@logger'
 import { EntityManager } from '@mikro-orm/core'
 import { Injectable } from '@nestjs/common'
-import { ConfigService, ConfigType } from '@nestjs/config'
-import { throwError } from '@utils/common'
 import { notFoundHandler } from '@utils/mikro-orm'
 import {
   DidListQueryMessage,
@@ -22,21 +20,13 @@ import {
 
 @Injectable()
 export class DidListService {
-  private readonly didcommConfig: ConfigType<typeof DidcommConfig>
-
   constructor(
+    private readonly didcommContext: DidcommContext,
     @InjectLogger(DidListService)
     private readonly logger: Logger,
     private readonly em: EntityManager,
-    configService: ConfigService,
   ) {
-    const _logger = this.logger.child('constructor')
-    _logger.trace('<')
-
-    this.didcommConfig =
-      configService.get<ConfigType<typeof DidcommConfig>>('didcomm') ?? throwError('Didcomm config is not defined')
-
-    _logger.trace('<')
+    this.logger.child('constructor').trace('<>')
   }
 
   public async processDidListUpdate(msg: DidListUpdateMessage): Promise<DidListUpdateResponseMessage> {
@@ -63,7 +53,7 @@ export class DidListService {
     await this.em.flush()
 
     const res = new DidListUpdateResponseMessage({
-      from: this.didcommConfig.mediatorDid,
+      from: this.didcommContext.did,
       to: [agent.did],
       body: { updated: updatesResults },
     })
@@ -96,7 +86,7 @@ export class DidListService {
     const pagination = new PageInfo({ offset, count: responseDids.length, remaining })
 
     const res = new DidListResponseMessage({
-      from: this.didcommConfig.mediatorDid,
+      from: this.didcommContext.did,
       to: [agent.did],
       body: { dids: responseDids, pagination },
     })
