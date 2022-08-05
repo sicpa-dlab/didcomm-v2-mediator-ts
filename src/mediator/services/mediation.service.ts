@@ -1,30 +1,27 @@
-import { DidcommForwardMessage, DidcommService } from '@common/didcomm'
+import { DidcommForwardMessage } from '@common/didcomm'
 import { DidcommContext } from '@common/didcomm/providers'
 import { AgentRegisteredDidReferenceFields } from '@common/entities/agent-registered-did.entity'
 import { AgentDeliveryType } from '@common/entities/agent.entity'
-import DidcommConfig from '@config/didcomm'
 import ExpressConfig from '@config/express'
 import { Agent, AgentMessage, AgentRegisteredDid } from '@entities'
 import { InjectLogger, Logger } from '@logger'
 import { EntityManager } from '@mikro-orm/core'
-import { HttpService } from '@nestjs/axios'
-import { Injectable, NotImplementedException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ConfigService, ConfigType } from '@nestjs/config'
 import { throwError } from '@utils/common'
 import { v4 as generateId } from 'uuid'
 import { AgentService } from '../../agent'
 import { MediationDenyMessage, MediationGrantMessage, MediationRequestMessage } from '../messages/mediation'
-import { BatchResponseMessage, MessageAttachment, MessagesResponse } from '../messages/message-pickup'
+import { TrustPingMessage, TrustPingResponseMessage } from '../messages/trust-ping'
+import { DeliveryService } from './delivery.service'
 
 @Injectable()
 export class MediationService {
-  private readonly didcommConfig: ConfigType<typeof DidcommConfig>
   private readonly expressConfig: ConfigType<typeof ExpressConfig>
 
   constructor(
     private readonly agentsService: AgentService,
-    private readonly didcommService: DidcommService,
-    private readonly httpService: HttpService,
+    private readonly deliveryService: DeliveryService,
     private readonly didcommContext: DidcommContext,
     private readonly em: EntityManager,
     @InjectLogger(MediationService)
@@ -32,10 +29,8 @@ export class MediationService {
     configService: ConfigService,
   ) {
     const _logger = this.logger.child('constructor')
-    _logger.trace('<')
+    _logger.trace('>')
 
-    this.didcommConfig =
-      configService.get<ConfigType<typeof DidcommConfig>>('didcomm') ?? throwError('Didcomm config is not defined')
     this.expressConfig =
       configService.get<ConfigType<typeof ExpressConfig>>('express') ?? throwError('Express config is not defined')
 
@@ -62,12 +57,28 @@ export class MediationService {
         },
       })
     } catch (e: any) {
-      logger.error({ res }, 'Error')
+      logger.error({ e }, 'Error')
       res = new MediationDenyMessage({
         from: this.didcommContext.did,
         to: [msg.from],
       })
     }
+
+    logger.trace({ res }, '<')
+    return res
+  }
+
+  public async processTrustPing(msg: TrustPingMessage): Promise<TrustPingResponseMessage | undefined> {
+    const logger = this.logger.child('processTrustPing', { msg })
+    logger.trace('>')
+
+    if (!msg.body.responseRequested) return
+
+    const res = new TrustPingResponseMessage({
+      from: this.didcommContext.did,
+      to: [msg.from],
+      thid: generateId(),
+    })
 
     logger.trace({ res }, '<')
     return res
@@ -94,15 +105,12 @@ export class MediationService {
     agent = registeredDid?.agent ?? (await this.em.findOneOrFail(Agent, { did: next }))
     logger.traceObject({ agent })
 
-    const isDeliveryMethodSpecified = !!agent.deliveryType && !!agent.deliveryData
+    // Try to deliver message
+    const isMessageDelivered = await this.deliveryService.tryDeliverForward(agent, msg)
 
-    // If delivery method is specified, mediator will deliver message
-    if (isDeliveryMethodSpecified) {
-      await this.deliverForward(agent, msg)
-    }
-
-    // Store messages so recipient can fetch them later using message-pickup API (applies to push token delivery method)
-    if (!isDeliveryMethodSpecified || agent.deliveryType === AgentDeliveryType.Push) {
+    // Store non-delivered messages so recipient can fetch them later using message-pickup API
+    // Applies to push token delivery method in any case
+    if (!isMessageDelivered || agent.deliveryType === AgentDeliveryType.Push) {
       for (const attachment of msg.attachments) {
         agent.messages.add(new AgentMessage({ agent, payload: attachment }))
       }
@@ -110,35 +118,5 @@ export class MediationService {
     }
 
     logger.trace('<')
-  }
-
-  private async deliverForward(agent: Agent, msg: DidcommForwardMessage): Promise<void> {
-    const { deliveryType, deliveryData } = agent
-    if (!deliveryType || !deliveryData)
-      throw new Error('Agent delivery method is not specified or web hook/token is missing')
-
-    if (deliveryType === AgentDeliveryType.WebHook) {
-      const deliveryMsg = new BatchResponseMessage({
-        from: this.didcommContext.did,
-        to: [agent.did],
-        body: new MessagesResponse({
-          messages: msg.attachments.map((it) => new MessageAttachment({ id: it.id || generateId(), message: it })),
-        }),
-      })
-
-      const encryptedMsg = await this.didcommService.packMessageEncrypted(deliveryMsg, {
-        fromDID: deliveryMsg.from,
-        toDID: deliveryMsg.to![0],
-      })
-
-      await this.httpService.axiosRef.post(deliveryData, encryptedMsg, {
-        headers: {
-          'Content-Type': this.didcommConfig.mimeType,
-          Origin: this.expressConfig.publicUrl,
-        },
-      })
-    } else if (deliveryType === AgentDeliveryType.Push) {
-      throw new NotImplementedException('Push token delivery method is not supported yet')
-    }
   }
 }

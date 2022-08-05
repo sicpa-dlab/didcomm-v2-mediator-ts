@@ -40,4 +40,7 @@ export enum AgentDeliveryType {
 
   // Deliver received messages using registered web hook
   WebHook = 'WebHook',
+
+  // Deliver received messages using websocket connection
+  WebSocket = 'WebSocket',
 }

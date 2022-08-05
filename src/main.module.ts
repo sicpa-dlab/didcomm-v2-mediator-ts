@@ -3,6 +3,7 @@ import { LoggerFactory } from '@logger'
 import { ClassSerializerInterceptor, Module, ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory, Reflector } from '@nestjs/core'
+import { WsAdapter } from '@nestjs/platform-ws'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import bodyParser from 'body-parser'
 import { AgentModule } from './agent'
@@ -51,6 +52,8 @@ export class MainModule {
     }
 
     app.setGlobalPrefix(expressConfig.prefix)
+
+    app.useWebSocketAdapter(new WsAdapter(app))
 
     const options = new DocumentBuilder()
       .setTitle(`Cloud agent mediator`)

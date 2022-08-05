@@ -4,6 +4,8 @@ import { HttpModule } from '@nestjs/axios'
 import { Module } from '@nestjs/common'
 import { AgentModule } from '../agent'
 import { MediatorController } from './mediator.controller'
+import { MediatorGateway } from './mediator.gateway'
+import { DeliveryService } from './services/delivery.service'
 import { DidListService } from './services/did-list.service'
 import { MediationService } from './services/mediation.service'
 import { MessagePickupService } from './services/message-pickup.service'
@@ -17,12 +19,14 @@ import { RouterService } from './services/router.service'
       DidListService,
       MessagePickupService,
       MediatorController,
+      MediatorGateway,
+      DeliveryService,
     ]),
     HttpModule,
     DidcommModule,
     AgentModule,
   ],
   controllers: [MediatorController],
-  providers: [RouterService, MediationService, DidListService, MessagePickupService],
+  providers: [RouterService, MediationService, DidListService, MessagePickupService, DeliveryService, MediatorGateway],
 })
 export class MediatorModule {}

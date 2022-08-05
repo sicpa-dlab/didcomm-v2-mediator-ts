@@ -42,8 +42,13 @@ export const DidcommContextProvider: Provider<DidcommContext> = {
     const didcommConfig =
       configService.get<ConfigType<typeof DidcommConfig>>('didcomm') ?? throwError('Didcomm config is not defined')
 
-    const serviceEndpoint = `${expressConfig.publicUrl}/api/v1`
-    const didcommContext = createDidcommContext(didcommConfig.mediatorSeed, serviceEndpoint)
+    const didcommContext = createDidcommContext({
+      seed: didcommConfig.mediatorSeed,
+      serviceEndpoints: {
+        http: `${expressConfig.publicUrl}/api/v1`,
+        ws: `${expressConfig.publicWsUrl}/api/v1`,
+      },
+    })
     logger.traceObject({ didcommContext })
 
     const invitation = makeMediationInvitation(didcommContext.did, expressConfig.publicUrl)
@@ -58,7 +63,14 @@ export const DidcommContextProvider: Provider<DidcommContext> = {
   inject: [ConfigService, LoggerFactory],
 }
 
-function createDidcommContext(seed: string, serviceEndpoint: string): DidcommContext {
+interface DidcommContextOptions {
+  seed: string
+  serviceEndpoints: { http: string; ws: string }
+}
+
+function createDidcommContext(options: DidcommContextOptions): DidcommContext {
+  const { seed, serviceEndpoints } = options
+
   const keyPair = ed25519.generateKeyPairFromSeed(Buffer.from(seed))
   const privateKeyX25519 = ed25519.convertSecretKeyToX25519(keyPair.secretKey)
   const publicKeyX25519 = ed25519.convertPublicKeyToX25519(keyPair.publicKey)
@@ -69,7 +81,22 @@ function createDidcommContext(seed: string, serviceEndpoint: string): DidcommCon
   const didDocument = new DidDocumentBuilder('')
     .addAuthentication(getEd25519VerificationMethod({ controller: '', id: '', key: ed25519Key }))
     .addKeyAgreement(getX25519VerificationMethod({ controller: '', id: '', key: x25519Key }))
-    .addService(new DidCommV2Service({ id: 'HTTP', serviceEndpoint, routingKeys: [], accept: ['didcomm/v2'] }))
+    .addService(
+      new DidCommV2Service({
+        id: 'HTTP',
+        serviceEndpoint: serviceEndpoints.http,
+        routingKeys: [],
+        accept: ['didcomm/v2'],
+      }),
+    )
+    .addService(
+      new DidCommV2Service({
+        id: 'WS',
+        serviceEndpoint: serviceEndpoints.ws,
+        routingKeys: [],
+        accept: ['didcomm/v2'],
+      }),
+    )
     .build()
 
   const didPeer = PeerDid.fromDidDocument(didDocument, PeerDidNumAlgo.MultipleInceptionKeyWithoutDoc)

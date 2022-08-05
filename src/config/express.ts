@@ -1,5 +1,6 @@
 export default () => ({
   publicUrl: process.env.EXPRESS_PUBLIC_URL || 'http://localhost:3000',
+  publicWsUrl: process.env.EXPRESS_PUBLIC_WS_URL || 'ws://localhost:3000',
   port: process.env.EXPRESS_PORT || 3000,
   enableCors: process.env.EXPRESS_ENABLE_CORS ? process.env.EXPRESS_ENABLE_CORS === 'true' : true,
   corsOptions: process.env.EXPRESS_CORS_OPTIONS ? JSON.parse(process.env.EXPRESS_CORS_OPTIONS) : {},

@@ -7,6 +7,7 @@ import { IMessage } from 'didcomm-node'
 import { DidListQueryMessage, DidListUpdateMessage } from '../messages/did-list'
 import { MediationRequestMessage } from '../messages/mediation'
 import { BatchPickupMessage, ListPickupMessage, StatusRequestMessage } from '../messages/message-pickup'
+import { TrustPingMessage } from '../messages/trust-ping'
 import { DidListService } from './did-list.service'
 import { MediationService } from './mediation.service'
 import { MessagePickupService } from './message-pickup.service'
@@ -52,6 +53,8 @@ export class RouterService {
       case DidcommForwardMessage.type:
         await this.mediationService.processForward(plainToInstance(DidcommForwardMessage, plainMessage))
         return
+      case TrustPingMessage.type:
+        return await this.mediationService.processTrustPing(plainToInstance(TrustPingMessage, plainMessage))
       case DidListUpdateMessage.type:
         return await this.didListService.processDidListUpdate(plainToInstance(DidListUpdateMessage, plainMessage))
       case DidListQueryMessage.type:

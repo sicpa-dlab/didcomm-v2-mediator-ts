@@ -33,7 +33,8 @@
           "nullable": true,
           "enumItems": [
             "Push",
-            "WebHook"
+            "WebHook",
+            "WebSocket"
           ],
           "mappedType": "enum"
         },
@@ -71,75 +72,6 @@
       ],
       "checks": [],
       "foreignKeys": {}
-    },
-    {
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "string"
-        },
-        "did": {
-          "name": "did",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
-        },
-        "agent_id": {
-          "name": "agent_id",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "string"
-        }
-      },
-      "name": "agent_registered_did",
-      "schema": "public",
-      "indexes": [
-        {
-          "columnNames": [
-            "did"
-          ],
-          "composite": false,
-          "keyName": "agent_registered_did_did_index",
-          "primary": false,
-          "unique": false
-        },
-        {
-          "keyName": "agent_registered_did_pkey",
-          "columnNames": [
-            "id"
-          ],
-          "composite": false,
-          "primary": true,
-          "unique": true
-        }
-      ],
-      "checks": [],
-      "foreignKeys": {
-        "agent_registered_did_agent_id_foreign": {
-          "constraintName": "agent_registered_did_agent_id_foreign",
-          "columnNames": [
-            "agent_id"
-          ],
-          "localTableName": "public.agent_registered_did",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "public.agent",
-          "deleteRule": "cascade",
-          "updateRule": "cascade"
-        }
-      }
     },
     {
       "columns": {
@@ -202,6 +134,75 @@
             "agent_id"
           ],
           "localTableName": "public.agent_message",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.agent",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        }
+      }
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
+        },
+        "did": {
+          "name": "did",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "agent_id": {
+          "name": "agent_id",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
+        }
+      },
+      "name": "agent_registered_did",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "did"
+          ],
+          "composite": false,
+          "keyName": "agent_registered_did_did_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "agent_registered_did_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "agent_registered_did_agent_id_foreign": {
+          "constraintName": "agent_registered_did_agent_id_foreign",
+          "columnNames": [
+            "agent_id"
+          ],
+          "localTableName": "public.agent_registered_did",
           "referencedColumnNames": [
             "id"
           ],
