@@ -20,6 +20,7 @@
     "migration:down": "npx mikro-orm migration:down",
     "migration:list": "npx mikro-orm migration:list",
     "migration:pending": "npx mikro-orm migration:pending",
+    "migrate:start": "yarn migration:up & yarn start",
     "schema:drop": "npx mikro-orm schema:drop",
     "test": "jest --runInBand --testTimeout=60000",
     "test:watch": "jest --watch --runInBand --testTimeout=60000",
