@@ -1,4 +1,3 @@
-import { DidcommModule } from '@common/didcomm'
 import { LoggerFactory } from '@logger'
 import { ClassSerializerInterceptor, Module, ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -11,7 +10,7 @@ import { CommonModule } from './common'
 import { MediatorModule } from './mediator'
 
 @Module({
-  imports: [CommonModule, MediatorModule, AgentModule, DidcommModule],
+  imports: [CommonModule, MediatorModule, AgentModule],
 })
 export class MainModule {
   public static async bootstrap() {

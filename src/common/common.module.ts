@@ -4,6 +4,8 @@ import { ReflectMetadataProvider } from '@mikro-orm/core'
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 
+import { DidcommModule } from '@common/didcomm'
+import { HealthModule } from '@common/health'
 import { MikroOrmModule } from '@mikro-orm/nestjs'
 import config from '../config'
 import * as entities from './entities'
@@ -38,6 +40,8 @@ import { RequestLoggerModule } from './request-logger'
       imports: [LoggerModule],
     }),
     RequestLoggerModule,
+    DidcommModule,
+    HealthModule,
   ],
 })
 export class CommonModule implements NestModule {
