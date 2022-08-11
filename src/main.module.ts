@@ -45,10 +45,8 @@ export class MainModule {
       app.enableCors(expressConfig.corsOptions)
     }
 
-    // Workaround for request body parsing issue https://github.com/nestjs/nest/issues/2625
-    if (expressConfig.jsonContentHeaders) {
-      app.use(bodyParser.json({ type: expressConfig.jsonContentHeaders }))
-    }
+    // 'type' option used as workaround to parse custom Content-Type as json https://github.com/nestjs/nest/issues/2625
+    app.use(bodyParser.json({ type: expressConfig.jsonContentHeaders, limit: expressConfig.requestSizeLimit }))
 
     app.setGlobalPrefix(expressConfig.prefix)
 

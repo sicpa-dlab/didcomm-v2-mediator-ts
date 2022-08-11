@@ -12,4 +12,6 @@ COPY . /usr/src/cloud-agent
 RUN yarn install --no-lockfile
 
 EXPOSE 3000
+
+HEALTHCHECK CMD curl --fail http://localhost:3000/api/health || exit 1
 CMD ["yarn", "migrate:start"]
