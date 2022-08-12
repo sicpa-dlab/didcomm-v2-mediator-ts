@@ -6,4 +6,5 @@ export default () => ({
   password: process.env.MIKRO_ORM_PASSWORD || 'cloud_agent_password',
   dbName: process.env.MIKRO_ORM_DATABASE || 'cloud_agent',
   logging: process.env.MIKRO_ORM_LOGGING || 'all',
+  sslOptions: process.env.MIKRO_ORM_SSL_OPTIONS ? JSON.parse(process.env.MIKRO_ORM_SSL_OPTIONS) : false,
 })
