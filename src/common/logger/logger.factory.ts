@@ -1,7 +1,9 @@
+import PinoConfig from '@config/pino'
 import { Inject, Injectable, LoggerService as INestLogger, Type } from '@nestjs/common'
+import { ConfigType } from '@nestjs/config'
 import { undefinedToNull } from '@utils/object'
+import path from 'path'
 import pino from 'pino'
-import pinoConfig from '../../config/pino'
 
 @Injectable()
 export class LoggerFactory {
@@ -11,7 +13,8 @@ export class LoggerFactory {
   // we need logger to be created
   // before container initialization.
   constructor() {
-    this.rootLogger = pino(pinoConfig())
+    const transport = this.createPinoTransport(PinoConfig())
+    this.rootLogger = pino(transport)
   }
 
   public getLogger(): Logger {
@@ -20,6 +23,26 @@ export class LoggerFactory {
 
   public getNestLogger(): NestLogger {
     return new NestLogger(new Logger(this.rootLogger))
+  }
+
+  private createPinoTransport(config: ConfigType<typeof PinoConfig>) {
+    const { level, redact, logFilePath } = config
+
+    // We want to use 'pino/pretty' target in dev environment, but it's recommended to not use for in production cases
+    // README link: https://github.com/pinojs/pino-pretty#programmatic-integration
+    const target = process.env.NODE_ENV === 'production' ? 'pino/file' : 'pino-pretty'
+    const logFileDestination = path.join(process.cwd(), logFilePath)
+
+    return pino.transport({
+      targets: [
+        {
+          target,
+          level,
+          options: { destination: logFileDestination, mkdir: true, colorize: false, redact },
+        },
+        { target, level, options: { redact } },
+      ],
+    })
   }
 }
 

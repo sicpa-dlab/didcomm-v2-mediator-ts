@@ -1,13 +1,10 @@
+import path from 'path'
+
 export default () => ({
-  prettyPrint: process.env.PINO_PRETTY_PRINT
-    ? process.env.PINO_PRETTY_PRINT === 'true'
-    : {
-        colorize: true,
-        translateTime: true,
-      },
   level: process.env.PINO_LEVEL || 'info',
   redact: {
     paths: ['password', '*.password'],
     censor: '******',
   },
+  logFilePath: process.env.PINO_LOG_FILE_PATH || path.join('logs', 'all.log'),
 })
