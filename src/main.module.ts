@@ -1,6 +1,6 @@
+import ExpressConfig from '@config/express'
 import { LoggerFactory } from '@logger'
 import { ClassSerializerInterceptor, Module, ValidationPipe } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { NestFactory, Reflector } from '@nestjs/core'
 import { WsAdapter } from '@nestjs/platform-ws'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
@@ -22,9 +22,14 @@ export class MainModule {
     const memBefore = process.memoryUsage().heapUsed / 1024 / 1024
     logger.info(`Memory Usage (before startup): ${memBefore} MB`)
 
+    // We read config directly as we want to get Express config before 'NestFactory.create' call
+    const expressConfig = ExpressConfig()
+    logger.traceObject({ expressConfig })
+
     const app = await NestFactory.create(MainModule, {
       logger: loggerFactory.getNestLogger(),
       bodyParser: true,
+      httpsOptions: expressConfig.httpsOptions,
     })
 
     app.useGlobalPipes(
@@ -35,11 +40,6 @@ export class MainModule {
     )
 
     app.useGlobalInterceptors(new ClassSerializerInterceptor(new Reflector()))
-
-    const config = app.get(ConfigService)
-
-    const expressConfig = config.get('express')
-    logger.traceObject({ expressConfig })
 
     if (expressConfig.enableCors) {
       app.enableCors(expressConfig.corsOptions)
