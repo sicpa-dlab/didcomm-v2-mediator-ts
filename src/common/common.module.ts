@@ -25,12 +25,6 @@ import { RequestLoggerModule } from './request-logger'
           ...mikroOrmConfig,
           entities: Object.values(entities),
           logger: (message: string) => logger.trace(message),
-          driverOptions: {
-            connection: {
-              timezone: 'Z',
-              ssl: mikroOrmConfig.sslOptions,
-            },
-          },
           metadataProvider: ReflectMetadataProvider,
           cache: {
             enabled: false,
