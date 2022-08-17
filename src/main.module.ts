@@ -2,9 +2,11 @@ import ExpressConfig from '@config/express'
 import { LoggerFactory } from '@logger'
 import { ClassSerializerInterceptor, Module, ValidationPipe } from '@nestjs/common'
 import { NestFactory, Reflector } from '@nestjs/core'
+import { NestExpressApplication } from '@nestjs/platform-express'
 import { WsAdapter } from '@nestjs/platform-ws'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import bodyParser from 'body-parser'
+import path from 'path'
 import { AgentModule } from './agent'
 import { CommonModule } from './common'
 import { MediatorModule } from './mediator'
@@ -26,7 +28,7 @@ export class MainModule {
     const expressConfig = ExpressConfig()
     logger.traceObject({ expressConfig })
 
-    const app = await NestFactory.create(MainModule, {
+    const app = await NestFactory.create<NestExpressApplication>(MainModule, {
       logger: loggerFactory.getNestLogger(),
       bodyParser: true,
       httpsOptions: expressConfig.httpsOptions,
@@ -61,6 +63,8 @@ export class MainModule {
 
     const document = SwaggerModule.createDocument(app, options)
     SwaggerModule.setup(`${expressConfig.prefix}/docs`, app, document)
+
+    app.useStaticAssets(path.join(__dirname, '..', 'public'))
 
     await app.listen(expressConfig.port)
 

@@ -1,0 +1,5 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target" : { "namespace": "android_app", "package_name": "com.sicpa.userwallet",
+    "sha256_cert_fingerprints": ["BF:08:64:E7:B8:36:01:C5:70:7A:EF:9F:49:25:87:0D:5C:D3:13:16:09:88:CE:CA:E7:56:5A:C4:66:06:23:6A"] }
+}]
