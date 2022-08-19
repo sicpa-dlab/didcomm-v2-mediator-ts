@@ -46,7 +46,7 @@ export class DidListService {
     const updatesResults: DidListUpdated[] = []
 
     for (const update of msg.body.updates) {
-      const updateResult = this.updateAgentRecipientDid(agent, update)
+      const updateResult = await this.updateAgentRecipientDid(agent, update)
       updatesResults.push(updateResult)
     }
 
@@ -94,7 +94,7 @@ export class DidListService {
     return res
   }
 
-  private updateAgentRecipientDid(agent: Agent, update: DidListUpdate): DidListUpdated {
+  private async updateAgentRecipientDid(agent: Agent, update: DidListUpdate): Promise<DidListUpdated> {
     const logger = this.logger.child('updateAgentRecipientDid', { agent, update })
     logger.trace('>')
 
@@ -104,6 +104,7 @@ export class DidListService {
 
     try {
       if (action === DidListUpdateAction.Add) {
+        await this.clearExistingDidRegistrations(recipientDid)
         agent.registeredDids.add(new AgentRegisteredDid({ did: recipientDid, agent }))
         updateResult.result = DidListUpdateResult.Success
       } else if (action === DidListUpdateAction.Remove) {
@@ -120,5 +121,10 @@ export class DidListService {
 
     logger.trace({ updateResult }, '<')
     return updateResult
+  }
+
+  private async clearExistingDidRegistrations(did: string): Promise<void> {
+    const existingRegistrations = await this.em.find(AgentRegisteredDid, { did })
+    existingRegistrations.forEach((registeredDid) => this.em.remove(registeredDid))
   }
 }
