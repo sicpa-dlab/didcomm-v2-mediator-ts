@@ -86,7 +86,6 @@ function createDidcommContext(options: DidcommContextOptions): DidcommContext {
         id: 'HTTP',
         serviceEndpoint: serviceEndpoints.http,
         routingKeys: [],
-        accept: ['didcomm/v2'],
       }),
     )
     .addService(
@@ -94,7 +93,6 @@ function createDidcommContext(options: DidcommContextOptions): DidcommContext {
         id: 'WS',
         serviceEndpoint: serviceEndpoints.ws,
         routingKeys: [],
-        accept: ['didcomm/v2'],
       }),
     )
     .build()
