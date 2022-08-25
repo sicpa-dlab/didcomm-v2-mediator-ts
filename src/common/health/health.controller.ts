@@ -27,11 +27,15 @@ export class HealthController {
 
   @Get()
   @HealthCheck()
-  public check(): Promise<HealthCheckResult> {
+  public async check(): Promise<HealthCheckResult> {
+    const _logger = this.logger.child('check')
     const { memoryHeapThresholdMb, memoryRSSThresholdMb } = this.healthConfig
-    return this.healthCheckService.check([
+    const memory = process.memoryUsage().heapUsed / 1024 / 1024
+    const result = await this.healthCheckService.check([
       () => this.memoryHealthIndicator.checkHeap('memory_heap', memoryHeapThresholdMb * 1024 * 1024),
       () => this.memoryHealthIndicator.checkRSS('memory_rss', memoryRSSThresholdMb * 1024 * 1024),
     ])
+    _logger.info({ memory: `Memory Usage (health check): ${memory} MB` })
+    return result
   }
 }
