@@ -1,15 +1,24 @@
 import ExpressConfig from '@config/express'
+import { LoggerFactory } from '@logger'
 /* tslint:disable no-var-requires */
 const Mattermost = require('node-mattermost')
 
 export const sendNotification = async () => {
-  const expressConfig = ExpressConfig()
+  const loggerFactory = new LoggerFactory()
+  const logger = loggerFactory.getLogger().child('> Notifications').child('sendNotification')
 
-  if (!expressConfig.notificationsEndpoint) return
+  try {
+    const expressConfig = ExpressConfig()
+    logger.info(`Send notification to Mattermost ${expressConfig.notificationsEndpoint}`)
 
-  const mattermost = new Mattermost(expressConfig.notificationsEndpoint)
-  await mattermost.send({
-    username: 'Bot',
-    text: `Application ${expressConfig.name} has been started.`,
-  })
+    if (!expressConfig.notificationsEndpoint) return
+
+    const mattermost = new Mattermost(expressConfig.notificationsEndpoint)
+    await mattermost.send({
+      username: 'Bot',
+      text: `Application ${expressConfig.name} has been started.`,
+    })
+  } catch (e) {
+    logger.error(`Unable to send notification to Mattermost. Error: ${e}`)
+  }
 }
