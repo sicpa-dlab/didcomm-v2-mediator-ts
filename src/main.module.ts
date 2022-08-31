@@ -5,7 +5,7 @@ import { NestFactory, Reflector } from '@nestjs/core'
 import { NestExpressApplication } from '@nestjs/platform-express'
 import { WsAdapter } from '@nestjs/platform-ws'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
-import { notify } from '@utils/mattermost'
+import { sendNotification } from '@utils/mattermost'
 import bodyParser from 'body-parser'
 import path from 'path'
 import { AgentModule } from './agent'
@@ -72,8 +72,6 @@ export class MainModule {
     const memAfter = process.memoryUsage().heapUsed / 1024 / 1024
     logger.info(`Memory Usage (after startup): ${memAfter} MB`)
 
-    if (process.env.NODE_ENV === 'production') {
-      await notify()
-    }
+    await sendNotification()
   }
 }

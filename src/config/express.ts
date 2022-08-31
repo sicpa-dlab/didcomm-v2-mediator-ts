@@ -27,5 +27,6 @@ export default () => {
     httpsOptions,
     jsonContentHeaders: process.env.EXPRESS_JSON_CONTENT_HEADERS || ['application/ssi-agent-wire', 'application/json'],
     requestSizeLimit: process.env.EXPRESS_REQUEST_SIZE_LIMIT || '10mb',
+    notificationsEndpoint: process.env.EXPRESS_NOTIFICATIONS_ENDPOINT || undefined,
   }
 }
