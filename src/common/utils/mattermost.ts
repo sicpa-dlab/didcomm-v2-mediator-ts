@@ -1,8 +1,6 @@
 import ExpressConfig from '@config/express'
 /* tslint:disable no-var-requires */
 const Mattermost = require('node-mattermost')
-/* tslint:disable no-var-requires */
-const getVersion = require('git-repo-version')
 
 export const sendNotification = async () => {
   const expressConfig = ExpressConfig()
@@ -12,6 +10,6 @@ export const sendNotification = async () => {
   const mattermost = new Mattermost(expressConfig.notificationsEndpoint)
   await mattermost.send({
     username: 'Bot',
-    text: `Application ${expressConfig.name}-${getVersion()} has been started.`,
+    text: `Application ${expressConfig.name} has been started.`,
   })
 }

@@ -72,6 +72,7 @@ export class MainModule {
     const memAfter = process.memoryUsage().heapUsed / 1024 / 1024
     logger.info(`Memory Usage (after startup): ${memAfter} MB`)
 
+    logger.info(`Send notification`)
     await sendNotification()
   }
 }

@@ -46,7 +46,6 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "didcomm-node": "^0.3.4",
-    "git-repo-version": "^1.0.2",
     "module-alias": "^2.2.2",
     "node-mattermost": "^0.0.1",
     "pino": "^8.4.1",
