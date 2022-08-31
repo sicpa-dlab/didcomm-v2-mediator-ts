@@ -1,7 +1,7 @@
 import path from 'path'
 
 export default () => ({
-  level: process.env.PINO_LEVEL || 'info',
+  level: process.env.PINO_LEVEL || 'warning',
   redact: {
     paths: ['password', '*.password'],
     censor: '******',
