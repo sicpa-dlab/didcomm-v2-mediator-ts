@@ -30,7 +30,8 @@ export class LoggerFactory {
 
     // We want to use 'pino/pretty' target in dev environment, but it's recommended to not use for in production cases
     // README link: https://github.com/pinojs/pino-pretty#programmatic-integration
-    const target = process.env.NODE_ENV === 'production' ? 'pino/file' : 'pino-pretty'
+    // const target = process.env.NODE_ENV === 'production' ? 'pino/file' : 'pino-pretty'
+    const target = 'pino-pretty'
     const logFileDestination = path.join(process.cwd(), logFilePath)
 
     return pino.transport({
