@@ -16,7 +16,7 @@ export const sendNotification = async () => {
     const mattermost = new Mattermost(expressConfig.notificationsEndpoint)
     await mattermost.send({
       username: 'Bot',
-      text: `Application ${expressConfig.name} has been started. Version: ${process.env.npm_package_version}`,
+      text: `Application ${expressConfig.name} has been started. Version: ${expressConfig.version}`,
     })
   } catch (e) {
     logger.error(`Unable to send notification to Mattermost. Error: ${e}`)
