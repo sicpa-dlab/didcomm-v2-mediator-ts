@@ -18,6 +18,7 @@ export default () => {
 
   return {
     name: process.env.EXPRESS_APP_NAME || 'Cloud Agent Mediator',
+    version: process.env.EXPRESS_APP_VERSION || process.env.npm_package_version || '0.0.1-placeholder',
     publicUrl: process.env.EXPRESS_PUBLIC_URL || 'http://localhost:3000',
     publicWsUrl: process.env.EXPRESS_PUBLIC_WS_URL || 'ws://localhost:3000',
     port: process.env.EXPRESS_PORT || 3000,

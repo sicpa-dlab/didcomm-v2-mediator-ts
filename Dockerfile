@@ -1,6 +1,7 @@
 FROM node:16
 
 ARG npm_token
+ARG version
 
 RUN npm config set @sicpa-dlab:registry https://npm.pkg.github.com/
 RUN npm config set '//npm.pkg.github.com/:_authToken' ${npm_token}
@@ -10,6 +11,8 @@ WORKDIR /usr/src/cloud-agent
 COPY . /usr/src/cloud-agent
 
 RUN yarn install --no-lockfile
+
+ENV EXPRESS_APP_VERSION=${version}
 
 EXPOSE 3000
 

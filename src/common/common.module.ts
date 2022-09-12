@@ -1,6 +1,7 @@
 import { DidcommModule } from '@common/didcomm'
 import { HealthModule } from '@common/health'
 import { MikroOrmMiddleware } from '@common/middleware'
+import { VersionModule } from '@common/version'
 import { LoggerFactory, LoggerModule } from '@logger'
 import { ReflectMetadataProvider } from '@mikro-orm/core'
 import { MikroOrmModule } from '@mikro-orm/nestjs'
@@ -38,6 +39,7 @@ import { RequestLoggerModule } from './request-logger'
     RequestLoggerModule,
     DidcommModule,
     HealthModule,
+    VersionModule,
   ],
 })
 export class CommonModule implements NestModule {
