@@ -1,4 +1,5 @@
 import { EncryptedMessage } from '@common/didcomm/messages'
+import { SignedMessage } from '@common/didcomm/messages/signed.message'
 import { DidcommDidResolverService, SecretsResolverService } from '@common/didcomm/resolvers'
 import { InjectLogger, Logger } from '@logger'
 import { Injectable } from '@nestjs/common'
@@ -42,7 +43,7 @@ export class DidcommService {
     return EncryptedMessage.fromJson(encryptedMsg)
   }
 
-  public async unpackMessage(packedMessage: EncryptedMessage): Promise<IMessage> {
+  public async unpackMessage(packedMessage: EncryptedMessage | SignedMessage): Promise<IMessage> {
     const logger = this.logger.child('unpackMessage', { packedMessage })
     logger.trace('>')
 

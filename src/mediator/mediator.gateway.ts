@@ -1,4 +1,5 @@
 import { EncryptedMessage } from '@common/didcomm/messages'
+import { SignedMessage } from '@common/didcomm/messages/signed.message'
 import { Agent } from '@entities'
 import { InjectLogger, Logger } from '@logger'
 import { EntityManager, MikroORM, UseRequestContext } from '@mikro-orm/core'
@@ -54,7 +55,9 @@ export class MediatorGateway implements OnGatewayConnection {
 
   @UseRequestContext()
   @SubscribeMessage('message')
-  public async handleMessage(@MessageBody() msg: EncryptedMessage): Promise<EncryptedMessage | void> {
+  public async handleMessage(
+    @MessageBody() msg: EncryptedMessage | SignedMessage,
+  ): Promise<EncryptedMessage | SignedMessage | void> {
     const logger = this.logger.child('handleMessage', { msg })
     logger.trace('>')
 

@@ -1,5 +1,6 @@
 import { DidcommForwardMessage, DidcommMessage, DidcommService } from '@common/didcomm'
 import { EncryptedMessage } from '@common/didcomm/messages'
+import { SignedMessage } from '@common/didcomm/messages/signed.message'
 import { InjectLogger, Logger } from '@logger'
 import { Injectable } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
@@ -25,7 +26,9 @@ export class RouterService {
     this.logger.child('constructor').trace('<>')
   }
 
-  public async processMessage(packedMsg: EncryptedMessage): Promise<EncryptedMessage | undefined> {
+  public async processMessage(
+    packedMsg: EncryptedMessage | SignedMessage,
+  ): Promise<EncryptedMessage | SignedMessage | undefined> {
     const logger = this.logger.child('processMessage', { packedMsg })
     logger.trace('>')
 
