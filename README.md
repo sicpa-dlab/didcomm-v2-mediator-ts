@@ -94,3 +94,11 @@ $ npm run lint:fix
 
 Find Mediator provisioning invitation URL in the service output under `MEDIATOR PROVISIONING INVITATION` log statement.
 By default, Mediator starts at `http://localhost:3000`. In order to use Mediator outside you local host you need to set `EXPRESS_PUBLIC_URL` environment variable.
+
+## SBoM (Software Bill of Materials)
+
+To generate SBoM reports, run following command: 
+
+```bash
+$ npm run generate-sbom
+```

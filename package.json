@@ -25,7 +25,8 @@
     "test": "jest --runInBand --testTimeout=60000",
     "test:watch": "jest --watch --runInBand --testTimeout=60000",
     "test:cov": "jest --coverage --runInBand --testTimeout=60000",
-    "test:e2e": "jest --config ./test/jest-e2e.json --runInBand --testTimeout=60000"
+    "test:e2e": "jest --config ./test/jest-e2e.json --runInBand --testTimeout=60000",
+    "generate-sbom": "npx npm-license-crawler --onlyDirectDependencies --dependencies --json licensesReportDirect.json && npx npm-license-crawler --json licensesReportAll.json"
   },
   "dependencies": {
     "@mikro-orm/core": "^5.2.3",
