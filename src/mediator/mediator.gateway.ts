@@ -51,6 +51,13 @@ export class MediatorGateway implements OnGatewayConnection {
       logger.debug(`Closing WebSocket for agent DID: ${agentDid}`)
       this.connectedSockets.delete(agent.did)
     }
+
+    try {
+      await this.pushUndeliveredMessages(agent, socket)
+    } catch (error) {
+      logger.error('Push Undelivered Messages Failed', { error })
+    }
+    logger.trace('<')
   }
 
   @UseRequestContext()
@@ -80,5 +87,25 @@ export class MediatorGateway implements OnGatewayConnection {
 
     recipientSocket.send(msg)
     logger.trace('<')
+  }
+
+  private async pushUndeliveredMessages(agent: Agent, socket: WebSocket) {
+    const logger = this.logger.child('pushUndeliveredMessages', { agent, socket })
+    logger.debug('>')
+
+    logger.debug(`Undelivered messages: ${agent.messages}`)
+
+    try {
+      for (const msg of agent.messages) {
+        socket.send(msg.payload)
+        this.em.remove(msg)
+      }
+    } catch (error) {
+      logger.error('Error on sending undelivered message via WebSocket', { error })
+    }
+
+    await this.em.flush()
+
+    logger.debug('<')
   }
 }
