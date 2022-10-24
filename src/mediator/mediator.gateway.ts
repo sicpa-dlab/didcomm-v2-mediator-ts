@@ -8,6 +8,7 @@ import { MessageBody, OnGatewayConnection, SubscribeMessage, WebSocketGateway } 
 import { throwError } from '@utils/common'
 import { IncomingMessage } from 'http'
 import WebSocket from 'ws'
+import { MessagePickupService } from './services/message-pickup.service'
 import { RouterService } from './services/router.service'
 
 @WebSocketGateway({ path: '/api/v1' })
@@ -17,6 +18,7 @@ export class MediatorGateway implements OnGatewayConnection {
   public constructor(
     @Inject(forwardRef(() => RouterService))
     private readonly routerService: RouterService,
+    private readonly messagePickupService: MessagePickupService,
     // We need to inject MikroORM instance to make 'UseRequestContext' decorators to work
     // @ts-ignore - ignore unused declaration
     private readonly orm: MikroORM,
@@ -91,21 +93,22 @@ export class MediatorGateway implements OnGatewayConnection {
 
   private async pushUndeliveredMessages(agent: Agent, socket: WebSocket) {
     const logger = this.logger.child('pushUndeliveredMessages', { agent, socket })
-    logger.debug('>')
-
-    logger.debug(`Undelivered messages: ${agent.messages}`)
-
+    logger.info('>')
+    let responseMessage
     try {
-      for (const msg of agent.messages) {
-        socket.send(msg.payload)
-        this.em.remove(msg)
-      }
+      do {
+        responseMessage = await this.messagePickupService.getUndeliveredBatchMessage(agent)
+        logger.info(`Undelivered messages: ${responseMessage.messages}`)
+        socket.send(responseMessage.encryptedMsg)
+        responseMessage.messages.forEach((it) => this.em.remove(it))
+        await this.em.flush()
+      } while (responseMessage.messages.length)
     } catch (error) {
       logger.error('Error on sending undelivered message via WebSocket', { error })
     }
 
     await this.em.flush()
 
-    logger.debug('<')
+    logger.info('<')
   }
 }
