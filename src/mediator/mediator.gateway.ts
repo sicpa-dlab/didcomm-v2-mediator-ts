@@ -92,23 +92,26 @@ export class MediatorGateway implements OnGatewayConnection {
   }
 
   private async pushUndeliveredMessages(agent: Agent, socket: WebSocket) {
-    const logger = this.logger.child('pushUndeliveredMessages', { agent, socket })
-    logger.info('>')
+    const logger = this.logger.child('pushUndeliveredMessages', { agent })
+    logger.trace('>')
+
     let responseMessage
     try {
       do {
         responseMessage = await this.messagePickupService.getUndeliveredBatchMessage(agent)
-        logger.info(`Undelivered messages: ${responseMessage.messages}`)
+        logger.debug(`Sending undelivered messages: ${responseMessage.messages}`)
+
         socket.send(responseMessage.encryptedMsg)
+        logger.traceObject({ message: responseMessage.encryptedMsg })
+
         responseMessage.messages.forEach((it) => this.em.remove(it))
+
         await this.em.flush()
       } while (responseMessage.messages.length)
     } catch (error) {
-      logger.error('Error on sending undelivered message via WebSocket', { error })
+      logger.error('Error on sending undelivered messages via WebSocket', { error })
     }
 
-    await this.em.flush()
-
-    logger.info('<')
+    logger.trace('<')
   }
 }
