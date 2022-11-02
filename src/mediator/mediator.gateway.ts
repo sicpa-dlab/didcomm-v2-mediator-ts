@@ -96,17 +96,16 @@ export class MediatorGateway implements OnGatewayConnection {
     logger.trace('>')
 
     let responseMessage
+    const batchSize = 10
+    let offset = 0
     try {
       do {
-        responseMessage = await this.messagePickupService.getUndeliveredBatchMessage(agent)
+        responseMessage = await this.messagePickupService.getUndeliveredBatchMessage(agent, batchSize, offset)
+        offset += batchSize
         logger.debug(`Sending undelivered messages: ${responseMessage.messages}`)
 
         socket.send(responseMessage.encryptedMsg)
         logger.traceObject({ message: responseMessage.encryptedMsg })
-
-        responseMessage.messages.forEach((it) => this.em.remove(it))
-
-        await this.em.flush()
       } while (responseMessage.messages.length)
     } catch (error) {
       logger.error('Error on sending undelivered messages via WebSocket', { error })

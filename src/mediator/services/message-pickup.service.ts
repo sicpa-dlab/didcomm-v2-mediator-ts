@@ -6,6 +6,7 @@ import { InjectLogger, Logger } from '@logger'
 import { EntityManager, QueryOrder } from '@mikro-orm/core'
 import { Injectable } from '@nestjs/common'
 import {
+  BatchAckMessage,
   BatchPickupMessage,
   BatchResponseMessage,
   ListPickupMessage,
@@ -46,6 +47,28 @@ export class MessagePickupService {
     return res
   }
 
+  public async processBatchAck(msg: BatchAckMessage) {
+    const logger = this.logger.child('processBatchAck', { msg })
+    logger.trace('>')
+
+    const agent = await this.em.findOneOrFail(Agent, { did: msg.from })
+    logger.trace({ agent })
+
+    const ackIds = msg.ack
+
+    const messages: AgentMessage[] = (await agent.messages.loadItems()).filter(
+      (m) => m.payload.id && ackIds.includes(m.payload.id),
+    )
+    const messageIds = messages.map((m) => m.payload.id)
+    logger.info({ messageIds: `Processed messages ids: ${messageIds}` })
+
+    messages.forEach((it) => this.em.remove(it))
+
+    await this.em.flush()
+
+    logger.trace('<')
+  }
+
   public async processBatchPickup(msg: BatchPickupMessage): Promise<BatchResponseMessage> {
     const logger = this.logger.child('processBatchPickup', { msg })
     logger.trace('>')
@@ -53,22 +76,19 @@ export class MessagePickupService {
     const agent = await this.em.findOneOrFail(Agent, { did: msg.from })
     logger.traceObject({ agent })
 
-    const { messages, responseMsg } = await this.getBatchResponseMessage(agent, msg.body.batchSize)
-
-    messages.forEach((it) => this.em.remove(it))
-
-    await this.em.flush()
+    const { responseMsg } = await this.getBatchResponseMessage(agent, msg.body.batchSize)
 
     logger.trace('<')
     return responseMsg
   }
 
-  public async getBatchResponseMessage(agent: Agent, batchSize: number) {
+  public async getBatchResponseMessage(agent: Agent, batchSize: number, offset: number = 0) {
     const logger = this.logger.child('getBatchResponseMessage')
     logger.trace('>')
     const messages: AgentMessage[] = await agent.messages.matching({
       limit: batchSize,
       orderBy: { createdAt: QueryOrder.ASC },
+      offset,
     })
     logger.trace({ messages })
 
@@ -113,10 +133,12 @@ export class MessagePickupService {
 
   public async getUndeliveredBatchMessage(
     agent: Agent,
+    batchSize: number,
+    offset: number,
   ): Promise<{ encryptedMsg: EncryptedMessage; messages: AgentMessage[] }> {
     const logger = this.logger.child('processUndeliveredMessages', { agent })
 
-    const { responseMsg, messages } = await this.getBatchResponseMessage(agent, 10)
+    const { responseMsg, messages } = await this.getBatchResponseMessage(agent, batchSize, offset)
 
     const encryptedMsg = await this.didcommService.packMessageEncrypted(responseMsg, {
       fromDID: responseMsg.from,

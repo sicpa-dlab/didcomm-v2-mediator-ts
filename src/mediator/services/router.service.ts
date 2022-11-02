@@ -7,7 +7,12 @@ import { plainToInstance } from 'class-transformer'
 import { IMessage } from 'didcomm-node'
 import { DidListQueryMessage, DidListUpdateMessage } from '../messages/did-list'
 import { MediationRequestMessage } from '../messages/mediation'
-import { BatchPickupMessage, ListPickupMessage, StatusRequestMessage } from '../messages/message-pickup'
+import {
+  BatchAckMessage,
+  BatchPickupMessage,
+  ListPickupMessage,
+  StatusRequestMessage,
+} from '../messages/message-pickup'
 import { TrustPingMessage } from '../messages/trust-ping'
 import { DidListService } from './did-list.service'
 import { MediationService } from './mediation.service'
@@ -68,6 +73,9 @@ export class RouterService {
         return await this.messagePickupService.processBatchPickup(plainToInstance(BatchPickupMessage, plainMessage))
       case ListPickupMessage.type:
         return await this.messagePickupService.processListPickup(plainToInstance(ListPickupMessage, plainMessage))
+      case BatchAckMessage.type:
+        await this.messagePickupService.processBatchAck(plainToInstance(BatchAckMessage, plainMessage))
+        return
       default:
         throw new Error('Unsupported mediation message type')
     }

@@ -1,7 +1,6 @@
 import { DidcommForwardMessage } from '@common/didcomm'
 import { DidcommContext } from '@common/didcomm/providers'
 import { AgentRegisteredDidReferenceFields } from '@common/entities/agent-registered-did.entity'
-import { AgentDeliveryType } from '@common/entities/agent.entity'
 import ExpressConfig from '@config/express'
 import { Agent, AgentMessage, AgentRegisteredDid } from '@entities'
 import { InjectLogger, Logger } from '@logger'
@@ -105,17 +104,18 @@ export class MediationService {
     agent = registeredDid?.agent ?? (await this.em.findOneOrFail(Agent, { did: next }))
     logger.traceObject({ agent })
 
-    // Try to deliver message
-    const isMessageDelivered = await this.deliveryService.tryDeliverForward(agent, msg)
-
-    // Store non-delivered messages so recipient can fetch them later using message-pickup API
-    // Applies to push token delivery method in any case
-    if (!isMessageDelivered || agent.deliveryType === AgentDeliveryType.Push) {
-      for (const attachment of msg.attachments) {
-        agent.messages.add(new AgentMessage({ agent, payload: attachment }))
+    // Store messages so recipient can fetch them later using message-pickup API
+    // Sent messages will be removed with BatchAck message
+    for (const attachment of msg.attachments) {
+      if (!attachment.id) {
+        attachment.id = generateId()
       }
-      await this.em.flush()
+      agent.messages.add(new AgentMessage({ agent, payload: attachment }))
     }
+    await this.em.flush()
+
+    // Try to deliver message
+    await this.deliveryService.tryDeliverForward(agent, msg)
 
     logger.trace('<')
   }
