@@ -104,6 +104,7 @@ export class MediatorGateway implements OnGatewayConnection {
         offset += batchSize
         logger.debug(`Sending undelivered messages: ${responseMessage.messages}`)
 
+        if (!responseMessage.messages.length) break
         socket.send(responseMessage.encryptedMsg)
         logger.traceObject({ message: responseMessage.encryptedMsg })
       } while (responseMessage.messages.length)
