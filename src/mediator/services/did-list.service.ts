@@ -114,8 +114,8 @@ export class DidListService {
           updateResult.result = DidListUpdateResult.Success
         }
       }
-    } catch (e: any) {
-      logger.error(e)
+    } catch (error: any) {
+      logger.error({ error }, 'Did List update failed')
       updateResult.result = DidListUpdateResult.ServerError
     }
 
@@ -124,7 +124,17 @@ export class DidListService {
   }
 
   private async clearExistingDidRegistrations(did: string): Promise<void> {
+    const logger = this.logger.child('clearExistingDidRegistrations', { did })
+    logger.trace('>')
+
     const existingRegistrations = await this.em.find(AgentRegisteredDid, { did })
+
+    if (existingRegistrations.length) {
+      logger.warn({ existingRegistrations }, 'Clearing existing Agent DID registrations')
+    }
+
     existingRegistrations.forEach((registeredDid) => this.em.remove(registeredDid))
+
+    logger.trace('<')
   }
 }

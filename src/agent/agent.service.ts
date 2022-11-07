@@ -31,6 +31,8 @@ export class AgentService {
 
     await this.em.persistAndFlush(agent)
 
+    logger.info({ agent }, 'New Agent record created')
+
     const res = new IdResponse.Id(agent.id)
     logger.trace({ res }, '<')
     return res
@@ -47,6 +49,8 @@ export class AgentService {
     agent.deliveryData = req.deliveryData
 
     await this.em.flush()
+
+    logger.info({ agent }, 'Agent record successfully updated')
 
     logger.trace('<')
   }

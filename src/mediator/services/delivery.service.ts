@@ -69,9 +69,10 @@ export class DeliveryService {
     })
 
     try {
+      logger.debug({ deliveryMsg }, 'Delivering forward message attachments')
       await this.deliverMessage(agent, encryptedMsg)
-    } catch (e: any) {
-      logger.error(e)
+    } catch (error: any) {
+      logger.error({ error }, 'Message delivery failed')
       return false
     }
 
@@ -92,7 +93,7 @@ export class DeliveryService {
     } else if (deliveryType === AgentDeliveryType.WebSocket) {
       this.websocketGateway.sendMessage(agent.did, msg)
     } else {
-      throw new Error('Unsupported delivery method')
+      throw new Error(`Unsupported delivery method: ${deliveryType}`)
     }
   }
 }

@@ -69,7 +69,7 @@ export class RequestLoggerInterceptor implements NestInterceptor {
       if (response.statusCode >= 500) {
         logger.error({ err, msg, req, res })
       } else {
-        logger.info({ err, msg, req, res })
+        logger.warn({ err, msg, req, res })
       }
     } else {
       if (!this.exclude(url)) {

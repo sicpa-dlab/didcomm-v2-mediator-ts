@@ -18,7 +18,7 @@ export const sendNotification = async () => {
       username: 'Bot',
       text: `Application ${expressConfig.name} has been started. Version: ${expressConfig.version}`,
     })
-  } catch (e) {
-    logger.error(`Unable to send notification to Mattermost. Error: ${e}`)
+  } catch (error: any) {
+    logger.error({ error }, `Unable to send notification to Mattermost.`)
   }
 }

@@ -34,7 +34,7 @@ export class MediatorGateway implements OnGatewayConnection {
   // Related link: https://stackoverflow.com/a/72799993
   @UseRequestContext()
   public async handleConnection(socket: WebSocket, request: IncomingMessage): Promise<void> {
-    const logger = this.logger.child('handleConnection', { socket, request })
+    const logger = this.logger.child('handleConnection')
     logger.trace('>')
 
     const agentDid = request.headers['agent-did'] as string | undefined
@@ -49,15 +49,15 @@ export class MediatorGateway implements OnGatewayConnection {
     logger.debug(`Connecting WebSocket for agent DID: ${agentDid}`)
 
     this.connectedSockets.set(agent.did, socket)
-    socket.onclose = () => {
-      logger.debug(`Closing WebSocket for agent DID: ${agentDid}`)
+    socket.onclose = (event) => {
+      logger.debug({ event }, `Closing WebSocket for agent DID: ${agentDid}`)
       this.connectedSockets.delete(agent.did)
     }
 
     try {
       await this.pushUndeliveredMessages(agent, socket)
     } catch (error) {
-      logger.error('Push Undelivered Messages Failed', { error })
+      logger.error({ error }, 'Push Undelivered Messages Failed')
     }
     logger.trace('<')
   }
@@ -109,7 +109,7 @@ export class MediatorGateway implements OnGatewayConnection {
         logger.traceObject({ message: responseMessage.encryptedMsg })
       } while (responseMessage.messages.length)
     } catch (error) {
-      logger.error('Error on sending undelivered messages via WebSocket', { error })
+      logger.error({ error }, 'Error on sending undelivered messages via WebSocket')
     }
 
     logger.trace('<')

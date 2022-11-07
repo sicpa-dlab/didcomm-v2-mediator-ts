@@ -41,7 +41,7 @@ export class SecretsResolverService implements SecretsResolver {
 
     const { kid, privateKey } = this.didcommContext
 
-    if (secret_id !== kid || !privateKey) return null
+    if (secret_id !== kid) return null
 
     logger.trace('<')
     return {

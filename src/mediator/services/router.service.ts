@@ -34,15 +34,19 @@ export class RouterService {
   public async processMessage(
     packedMsg: EncryptedMessage | SignedMessage,
   ): Promise<EncryptedMessage | SignedMessage | undefined> {
-    const logger = this.logger.child('processMessage', { packedMsg })
+    const logger = this.logger.child('processMessage')
     logger.trace('>')
 
     const plainMessage = await this.didcommService.unpackMessage(packedMsg)
     logger.traceObject({ plainMessage })
 
+    logger.debug({ plainMessage }, 'Processing received message')
+
     const responseMsg = await this.processUnpackedMessageByType(plainMessage)
     logger.traceObject({ responseMsg })
     if (!responseMsg) return
+
+    logger.debug({ responseMsg }, 'Sending response message')
 
     const encryptedMsg = await this.didcommService.packMessageEncrypted(responseMsg, {
       fromDID: responseMsg.from,
@@ -77,7 +81,7 @@ export class RouterService {
         await this.messagePickupService.processBatchAck(plainToInstance(BatchAckMessage, plainMessage))
         return
       default:
-        throw new Error('Unsupported mediation message type')
+        throw new Error(`Unsupported mediation message type: ${plainMessage.type}`)
     }
   }
 }

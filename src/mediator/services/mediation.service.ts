@@ -55,8 +55,8 @@ export class MediationService {
           endpoint: `${this.expressConfig.publicUrl}/api/v1`,
         },
       })
-    } catch (e: any) {
-      logger.error({ e }, 'Error')
+    } catch (error: any) {
+      logger.error({ error }, 'Mediation grant failed')
       res = new MediationDenyMessage({
         from: this.didcommContext.did,
         to: [msg.from],

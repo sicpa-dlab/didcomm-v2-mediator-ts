@@ -38,6 +38,8 @@ export class MessagePickupService {
 
     const messageCount = await agent.messages.loadCount()
 
+    logger.info(`Sending status response for agent DID ${agent.did}: ${messageCount} undelivered messages`)
+
     const res = new StatusResponseMessage({
       from: this.didcommContext.did,
       to: [agent.did],
@@ -47,7 +49,7 @@ export class MessagePickupService {
     return res
   }
 
-  public async processBatchAck(msg: BatchAckMessage) {
+  public async processBatchAck(msg: BatchAckMessage): Promise<void> {
     const logger = this.logger.child('processBatchAck', { msg })
     logger.trace('>')
 
@@ -60,7 +62,7 @@ export class MessagePickupService {
       (m) => m.payload.id && ackIds.includes(m.payload.id),
     )
     const messageIds = messages.map((m) => m.payload.id)
-    logger.info({ messageIds: `Processed messages ids: ${messageIds}` })
+    logger.info(`Received ack for message ids: ${messageIds}`)
 
     messages.forEach((it) => this.em.remove(it))
 
@@ -99,11 +101,11 @@ export class MessagePickupService {
         messages: messages.map((it) => new MessageAttachment({ id: it.id, message: it.payload })),
       }),
     })
-    logger.trace({ responseMsg })
-    logger.trace('<')
+    logger.trace({ responseMsg }, '<')
     return { messages, responseMsg }
   }
 
+  // TODO: Update list pickup API to use ACK logic similar to batch pickup
   public async processListPickup(msg: ListPickupMessage): Promise<ListResponseMessage> {
     const logger = this.logger.child('processListPickup', { msg })
     logger.trace('>')
@@ -112,7 +114,7 @@ export class MessagePickupService {
     logger.traceObject({ agent })
 
     const messages = await agent.messages.matching({ where: { id: msg.body.messageIds } })
-    logger.trace({ messages })
+    logger.traceObject({ messages })
 
     const res = new ListResponseMessage({
       from: this.didcommContext.did,
@@ -137,6 +139,7 @@ export class MessagePickupService {
     offset: number,
   ): Promise<{ encryptedMsg: EncryptedMessage; messages: AgentMessage[] }> {
     const logger = this.logger.child('processUndeliveredMessages', { agent })
+    logger.trace('>')
 
     const { responseMsg, messages } = await this.getBatchResponseMessage(agent, batchSize, offset)
 
