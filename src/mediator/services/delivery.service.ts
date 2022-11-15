@@ -10,9 +10,8 @@ import { HttpService } from '@nestjs/axios'
 import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { ConfigService, ConfigType } from '@nestjs/config'
 import { throwError } from '@utils/common'
-import { v4 as generateId } from 'uuid'
 import { MediatorGateway } from '../mediator.gateway'
-import { BatchResponseMessage, MessageAttachment, MessagesResponse } from '../messages/message-pickup'
+import { DeliveryMessage } from '../messages/message-pickup'
 
 @Injectable()
 export class DeliveryService {
@@ -55,12 +54,11 @@ export class DeliveryService {
       return false
     }
 
-    const deliveryMsg = new BatchResponseMessage({
+    const deliveryMsg = new DeliveryMessage({
       from: this.didcommContext.did,
       to: [agent.did],
-      body: new MessagesResponse({
-        messages: msg.attachments.map((it) => new MessageAttachment({ id: it.id || generateId(), message: it })),
-      }),
+      body: {},
+      attachments: msg.attachments,
     })
 
     const encryptedMsg = await this.didcommService.packMessageEncrypted(deliveryMsg, {

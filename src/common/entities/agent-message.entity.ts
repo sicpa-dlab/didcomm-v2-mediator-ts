@@ -10,6 +10,9 @@ export class AgentMessage implements Identified {
   public id: string
 
   @Property()
+  public recipient: string
+
+  @Property()
   public createdAt: Date = new Date()
 
   @Property({ type: JsonType })
@@ -21,6 +24,8 @@ export class AgentMessage implements Identified {
   constructor(props: Omit<AgentMessage, keyof Identified | 'createdAt'>) {
     this.id = props.payload.id || v4()
     this.payload = props.payload
+    this.payload.id = this.id
     this.agent = props.agent
+    this.recipient = props.recipient
   }
 }

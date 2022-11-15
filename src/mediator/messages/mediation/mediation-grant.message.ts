@@ -1,29 +1,23 @@
 import { DidcommMessage, DidcommMessageParams } from '@common/didcomm'
 import { Expose, Type } from 'class-transformer'
-import { Equals, IsArray, IsNotEmpty, IsObject, IsString, ValidateNested } from 'class-validator'
+import { Equals, IsArray, IsNotEmpty, IsObject, ValidateNested } from 'class-validator'
 
 export type MediationGrantMessageParams = {
   body: MediationGrant
 } & DidcommMessageParams
 
 export type MediationGrantBodyParams = {
-  endpoint: string
-  routingKeys: string[]
+  routingDid: string[]
 }
 
 export class MediationGrant {
   @IsNotEmpty()
   @IsArray()
-  @Expose({ name: 'routing_keys' })
-  public routingKeys!: string[]
-
-  @IsNotEmpty()
-  @IsString()
-  public endpoint!: string
+  @Expose({ name: 'routing_did' })
+  public routingDid!: string[]
 
   public constructor(params: MediationGrantBodyParams) {
-    this.routingKeys = params.routingKeys
-    this.endpoint = params.endpoint
+    this.routingDid = params.routingDid
   }
 }
 

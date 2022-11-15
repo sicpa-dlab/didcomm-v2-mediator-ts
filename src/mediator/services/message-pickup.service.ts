@@ -6,13 +6,9 @@ import { InjectLogger, Logger } from '@logger'
 import { EntityManager, QueryOrder } from '@mikro-orm/core'
 import { Injectable } from '@nestjs/common'
 import {
-  BatchAckMessage,
-  BatchPickupMessage,
-  BatchResponseMessage,
-  ListPickupMessage,
-  ListResponseMessage,
-  MessageAttachment,
-  MessagesResponse,
+  DeliveryMessage,
+  DeliveryRequestMessage,
+  MessagesReceivedMessage,
   StatusRequestMessage,
   StatusResponseMessage,
 } from '../messages/message-pickup'
@@ -36,7 +32,9 @@ export class MessagePickupService {
     const agent = await this.em.findOneOrFail(Agent, { did: msg.from })
     logger.traceObject({ agent })
 
-    const messageCount = await agent.messages.loadCount()
+    const messageCount = msg.body.recipientKey
+      ? await this.em.count(AgentMessage, { recipient: msg.body.recipientKey })
+      : await agent.messages.loadCount()
 
     logger.info(`Sending status response for agent DID ${agent.did}: ${messageCount} undelivered messages`)
 
@@ -49,105 +47,91 @@ export class MessagePickupService {
     return res
   }
 
-  public async processBatchAck(msg: BatchAckMessage): Promise<void> {
-    const logger = this.logger.child('processBatchAck', { msg })
+  public async processDeliveryRequest(msg: DeliveryRequestMessage): Promise<DeliveryMessage> {
+    const logger = this.logger.child('processDeliveryRequest', { msg })
     logger.trace('>')
 
     const agent = await this.em.findOneOrFail(Agent, { did: msg.from })
-    logger.trace({ agent })
+    logger.traceObject({ agent })
 
-    const ackIds = msg.ack
+    const { deliveryMessage, messages } = await this.getMessage(agent, msg.body.limit, 0, msg.body.recipientKey)
 
-    const messages: AgentMessage[] = (await agent.messages.loadItems()).filter(
-      (m) => m.payload.id && ackIds.includes(m.payload.id),
-    )
-    const messageIds = messages.map((m) => m.payload.id)
-    logger.info(`Received ack for message ids: ${messageIds}`)
+    logger.trace({ deliveryMessage })
 
     messages.forEach((it) => this.em.remove(it))
 
     await this.em.flush()
 
     logger.trace('<')
+    return deliveryMessage
   }
 
-  public async processBatchPickup(msg: BatchPickupMessage): Promise<BatchResponseMessage> {
-    const logger = this.logger.child('processBatchPickup', { msg })
-    logger.trace('>')
-
-    const agent = await this.em.findOneOrFail(Agent, { did: msg.from })
-    logger.traceObject({ agent })
-
-    const { responseMsg } = await this.getBatchResponseMessage(agent, msg.body.batchSize)
-
-    logger.trace('<')
-    return responseMsg
-  }
-
-  public async getBatchResponseMessage(agent: Agent, batchSize: number, offset: number = 0) {
-    const logger = this.logger.child('getBatchResponseMessage')
-    logger.trace('>')
-    const messages: AgentMessage[] = await agent.messages.matching({
-      limit: batchSize,
-      orderBy: { createdAt: QueryOrder.ASC },
-      offset,
-    })
-    logger.trace({ messages })
-
-    const responseMsg = new BatchResponseMessage({
-      from: this.didcommContext.did,
-      to: [agent.did],
-      body: new MessagesResponse({
-        messages: messages.map((it) => new MessageAttachment({ id: it.id, message: it.payload })),
-      }),
-    })
-    logger.trace({ responseMsg }, '<')
-    return { messages, responseMsg }
-  }
-
-  // TODO: Update list pickup API to use ACK logic similar to batch pickup
-  public async processListPickup(msg: ListPickupMessage): Promise<ListResponseMessage> {
+  public async processMessagesReceived(msg: MessagesReceivedMessage): Promise<undefined> {
     const logger = this.logger.child('processListPickup', { msg })
     logger.trace('>')
 
     const agent = await this.em.findOneOrFail(Agent, { did: msg.from })
     logger.traceObject({ agent })
 
-    const messages = await agent.messages.matching({ where: { id: msg.body.messageIds } })
-    logger.traceObject({ messages })
-
-    const res = new ListResponseMessage({
-      from: this.didcommContext.did,
-      to: [agent.did],
-      body: new MessagesResponse({
-        messages: messages.map((it) => new MessageAttachment({ id: it.id, message: it.payload })),
-      }),
-    })
-    logger.trace({ res })
+    const messages = await agent.messages.matching({ where: { id: msg.body.messageIdList } })
+    logger.trace({ messages })
 
     messages.forEach((it) => this.em.remove(it))
 
     await this.em.flush()
 
     logger.trace('<')
-    return res
+    return undefined
   }
 
   public async getUndeliveredBatchMessage(
     agent: Agent,
     batchSize: number,
     offset: number,
-  ): Promise<{ encryptedMsg: EncryptedMessage; messages: AgentMessage[] }> {
+  ): Promise<Promise<{ encryptedMsg: EncryptedMessage; messages: AgentMessage[] }>> {
     const logger = this.logger.child('processUndeliveredMessages', { agent })
     logger.trace('>')
 
-    const { responseMsg, messages } = await this.getBatchResponseMessage(agent, batchSize, offset)
+    const { deliveryMessage, messages } = await this.getMessage(agent, batchSize, offset)
 
-    const encryptedMsg = await this.didcommService.packMessageEncrypted(responseMsg, {
-      fromDID: responseMsg.from,
-      toDID: responseMsg.to![0],
+    const encryptedMsg = await this.didcommService.packMessageEncrypted(deliveryMessage, {
+      fromDID: deliveryMessage.from,
+      toDID: deliveryMessage.to![0],
     })
     logger.trace({ encryptedMsg }, '<')
     return { encryptedMsg, messages }
+  }
+
+  private async getMessage(
+    agent: Agent,
+    limit: number,
+    offset: number = 0,
+    recipientKey?: string,
+  ): Promise<{ deliveryMessage: DeliveryMessage; messages: AgentMessage[] }> {
+    const logger = this.logger.child('getMessage')
+    logger.trace('>')
+
+    const options = {
+      limit,
+      offset,
+      orderBy: { createdAt: QueryOrder.ASC },
+    }
+
+    const messages = recipientKey
+      ? await this.em.find(AgentMessage, { recipient: recipientKey }, options)
+      : await agent.messages.matching(options)
+
+    logger.trace({ messages })
+
+    const deliveryMessage = new DeliveryMessage({
+      from: this.didcommContext.did,
+      to: [agent.did],
+      body: {
+        recipientKey,
+      },
+      attachments: messages.map((it) => it.payload),
+    })
+    logger.trace({ res: deliveryMessage }, '<')
+    return { deliveryMessage, messages }
   }
 }

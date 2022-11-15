@@ -6,15 +6,12 @@ import { Injectable } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
 import { IMessage } from 'didcomm-node'
 import { DidListQueryMessage, DidListUpdateMessage } from '../messages/did-list'
+import { QueriesMessage } from '../messages/discover-features'
 import { MediationRequestMessage } from '../messages/mediation'
-import {
-  BatchAckMessage,
-  BatchPickupMessage,
-  ListPickupMessage,
-  StatusRequestMessage,
-} from '../messages/message-pickup'
+import { DeliveryRequestMessage, MessagesReceivedMessage, StatusRequestMessage } from '../messages/message-pickup'
 import { TrustPingMessage } from '../messages/trust-ping'
 import { DidListService } from './did-list.service'
+import { DiscoverFeaturesService } from './discover-features.service'
 import { MediationService } from './mediation.service'
 import { MessagePickupService } from './message-pickup.service'
 
@@ -25,6 +22,7 @@ export class RouterService {
     private readonly mediationService: MediationService,
     private readonly didListService: DidListService,
     private readonly messagePickupService: MessagePickupService,
+    private readonly discoverFeaturesService: DiscoverFeaturesService,
     @InjectLogger(RouterService)
     private readonly logger: Logger,
   ) {
@@ -38,12 +36,11 @@ export class RouterService {
     logger.trace('>')
 
     const plainMessage = await this.didcommService.unpackMessage(packedMsg)
-    logger.traceObject({ plainMessage })
-
     logger.debug({ plainMessage }, 'Processing received message')
 
-    const responseMsg = await this.processUnpackedMessageByType(plainMessage)
+    const responseMsg = await this.processMessageByType(plainMessage)
     logger.traceObject({ responseMsg })
+
     if (!responseMsg) return
 
     logger.debug({ responseMsg }, 'Sending response message')
@@ -56,7 +53,7 @@ export class RouterService {
     return encryptedMsg
   }
 
-  private async processUnpackedMessageByType(plainMessage: IMessage): Promise<DidcommMessage | undefined> {
+  private async processMessageByType(plainMessage: IMessage): Promise<DidcommMessage | undefined> {
     switch (plainMessage.type) {
       case MediationRequestMessage.type:
         return await this.mediationService.processMediationRequest(
@@ -67,19 +64,24 @@ export class RouterService {
         return
       case TrustPingMessage.type:
         return await this.mediationService.processTrustPing(plainToInstance(TrustPingMessage, plainMessage))
+      case QueriesMessage.type:
+        return await this.discoverFeaturesService.processDiscoverFeaturesQuery(
+          plainToInstance(QueriesMessage, plainMessage),
+        )
       case DidListUpdateMessage.type:
         return await this.didListService.processDidListUpdate(plainToInstance(DidListUpdateMessage, plainMessage))
       case DidListQueryMessage.type:
         return await this.didListService.processDidListQuery(plainToInstance(DidListQueryMessage, plainMessage))
       case StatusRequestMessage.type:
         return await this.messagePickupService.processStatusRequest(plainToInstance(StatusRequestMessage, plainMessage))
-      case BatchPickupMessage.type:
-        return await this.messagePickupService.processBatchPickup(plainToInstance(BatchPickupMessage, plainMessage))
-      case ListPickupMessage.type:
-        return await this.messagePickupService.processListPickup(plainToInstance(ListPickupMessage, plainMessage))
-      case BatchAckMessage.type:
-        await this.messagePickupService.processBatchAck(plainToInstance(BatchAckMessage, plainMessage))
-        return
+      case DeliveryRequestMessage.type:
+        return await this.messagePickupService.processDeliveryRequest(
+          plainToInstance(DeliveryRequestMessage, plainMessage),
+        )
+      case MessagesReceivedMessage.type:
+        return await this.messagePickupService.processMessagesReceived(
+          plainToInstance(MessagesReceivedMessage, plainMessage),
+        )
       default:
         throw new Error(`Unsupported mediation message type: ${plainMessage.type}`)
     }

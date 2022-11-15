@@ -111,6 +111,15 @@
           "primary": false,
           "nullable": false,
           "mappedType": "string"
+        },
+        "recipient": {
+          "name": "recipient",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
         }
       },
       "name": "agent_message",

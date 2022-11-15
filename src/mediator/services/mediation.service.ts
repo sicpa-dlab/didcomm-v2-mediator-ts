@@ -1,14 +1,10 @@
 import { DidcommForwardMessage } from '@common/didcomm'
 import { DidcommContext } from '@common/didcomm/providers'
 import { AgentRegisteredDidReferenceFields } from '@common/entities/agent-registered-did.entity'
-import ExpressConfig from '@config/express'
 import { Agent, AgentMessage, AgentRegisteredDid } from '@entities'
 import { InjectLogger, Logger } from '@logger'
 import { EntityManager } from '@mikro-orm/core'
 import { Injectable } from '@nestjs/common'
-import { ConfigService, ConfigType } from '@nestjs/config'
-import { throwError } from '@utils/common'
-import { v4 as generateId } from 'uuid'
 import { AgentService } from '../../agent'
 import { MediationDenyMessage, MediationGrantMessage, MediationRequestMessage } from '../messages/mediation'
 import { TrustPingMessage, TrustPingResponseMessage } from '../messages/trust-ping'
@@ -16,8 +12,6 @@ import { DeliveryService } from './delivery.service'
 
 @Injectable()
 export class MediationService {
-  private readonly expressConfig: ConfigType<typeof ExpressConfig>
-
   constructor(
     private readonly agentsService: AgentService,
     private readonly deliveryService: DeliveryService,
@@ -25,16 +19,7 @@ export class MediationService {
     private readonly em: EntityManager,
     @InjectLogger(MediationService)
     private readonly logger: Logger,
-    configService: ConfigService,
-  ) {
-    const _logger = this.logger.child('constructor')
-    _logger.trace('>')
-
-    this.expressConfig =
-      configService.get<ConfigType<typeof ExpressConfig>>('express') ?? throwError('Express config is not defined')
-
-    _logger.trace('<')
-  }
+  ) {}
 
   public async processMediationRequest(
     msg: MediationRequestMessage,
@@ -51,8 +36,7 @@ export class MediationService {
         from: this.didcommContext.did,
         to: [msg.from],
         body: {
-          routingKeys: [this.didcommContext.did],
-          endpoint: `${this.expressConfig.publicUrl}/api/v1`,
+          routingDid: [this.didcommContext.did],
         },
       })
     } catch (error: any) {
@@ -76,7 +60,7 @@ export class MediationService {
     const res = new TrustPingResponseMessage({
       from: this.didcommContext.did,
       to: [msg.from],
-      thid: generateId(),
+      thid: msg.id,
     })
 
     logger.trace({ res }, '<')
@@ -107,10 +91,7 @@ export class MediationService {
     // Store messages so recipient can fetch them later using message-pickup API
     // Sent messages will be removed with BatchAck message
     for (const attachment of msg.attachments) {
-      if (!attachment.id) {
-        attachment.id = generateId()
-      }
-      agent.messages.add(new AgentMessage({ agent, payload: attachment }))
+      agent.messages.add(new AgentMessage({ agent, payload: attachment, recipient: next }))
     }
     await this.em.flush()
 
