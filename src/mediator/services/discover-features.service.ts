@@ -2,6 +2,7 @@ import { DidcommContext } from '@common/didcomm/providers'
 import { InjectLogger, Logger } from '@logger'
 import { Injectable } from '@nestjs/common'
 import { DiscloseMessage, QueriesMessage } from '../messages/discover-features'
+import { FeatureTypes, ProtocolRoles } from '../messages/discover-features/disclose.message'
 
 @Injectable()
 export class DiscoverFeaturesService {
@@ -22,12 +23,29 @@ export class DiscoverFeaturesService {
       to: [msg.from],
       body: {
         disclosures: [
-          { 'feature-type': 'protocol', id: 'https://didcomm.org/coordinate-mediation/2.0' },
-          { 'feature-type': 'protocol', id: 'https://didcomm.org/discover-features/2.0' },
-          { 'feature-type': 'protocol', id: 'https://didcomm.org/messagepickup/3.0' },
-          { 'feature-type': 'protocol', id: 'https://didcomm.org/trust-ping/2.0' },
+          {
+            featureType: FeatureTypes.Protocol,
+            id: 'https://didcomm.org/coordinate-mediation/2.0',
+            roles: [ProtocolRoles.Mediator],
+          },
+          {
+            featureType: FeatureTypes.Protocol,
+            id: 'https://didcomm.org/discover-features/2.0',
+            roles: [ProtocolRoles.Responder],
+          },
+          {
+            featureType: FeatureTypes.Protocol,
+            id: 'https://didcomm.org/messagepickup/3.0',
+            roles: [ProtocolRoles.Mediator],
+          },
+          {
+            featureType: FeatureTypes.Protocol,
+            id: 'https://didcomm.org/trust-ping/2.0',
+            roles: [ProtocolRoles.Receiver],
+          },
         ],
       },
+      thid: msg.id,
     })
 
     logger.trace({ res }, '<')

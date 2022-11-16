@@ -59,6 +59,7 @@ export class RouterService {
   }
 
   private async processMessageByType(plainMessage: IMessage): Promise<DidcommMessage | undefined> {
+    const logger = this.logger.child('processMessageByType')
     switch (plainMessage.type) {
       case MediationRequestMessage.type:
         return await this.mediationService.processMediationRequest(
@@ -90,6 +91,7 @@ export class RouterService {
         await this.messagePickupService.processLiveModeChange(plainToInstance(LiveModeChangeMessage, plainMessage))
         return undefined
       default:
+        logger.warn({ plainMessage }, '<')
         throw new Error(`Unsupported mediation message type: ${plainMessage.type}`)
     }
   }

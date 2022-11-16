@@ -11,7 +11,7 @@ export class Migration20220725133443 extends Migration {
     this.addSql('create index "agent_registered_did_did_index" on "agent_registered_did" ("did");');
     this.addSql('alter table "agent_registered_did" add constraint "agent_registered_did_pkey" primary key ("id");');
 
-    this.addSql('create table "agent_message" ("id" varchar(255) not null, "created_at" timestamptz(0) not null, "payload" jsonb not null, "agent_id" varchar(255) not null, "recipient" varchar(255) not null);');
+    this.addSql('create table "agent_message" ("id" varchar(255) not null, "created_at" timestamptz(0) not null, "payload" jsonb not null, "agent_id" varchar(255) not null, "recipient" text not null);');
     this.addSql('alter table "agent_message" add constraint "agent_message_pkey" primary key ("id");');
 
     this.addSql('alter table "agent_registered_did" add constraint "agent_registered_did_agent_id_foreign" foreign key ("agent_id") references "agent" ("id") on update cascade on delete cascade;');

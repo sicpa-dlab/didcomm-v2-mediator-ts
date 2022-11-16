@@ -1,6 +1,11 @@
-import { DidcommMessage } from '@common/didcomm'
+import { DidcommMessage, DidcommMessageParams } from '@common/didcomm'
 import { Expose, Type } from 'class-transformer'
 import { Equals, IsArray, IsEnum, IsNotEmpty, IsObject, IsString, ValidateNested } from 'class-validator'
+
+export type DidListUpdateMessageParams = {
+  from: string
+  body: DidListUpdateBody
+} & DidcommMessageParams
 
 class DidListUpdateBody {
   @Type(() => DidListUpdate)
@@ -36,4 +41,11 @@ export class DidListUpdateMessage extends DidcommMessage {
   @Equals(DidListUpdateMessage.type)
   public readonly type = DidListUpdateMessage.type
   public static readonly type = 'https://didcomm.org/coordinate-mediation/2.0/didlist-update'
+
+  public constructor(params?: DidListUpdateMessageParams) {
+    super(params)
+    if (params) {
+      this.body = params.body
+    }
+  }
 }

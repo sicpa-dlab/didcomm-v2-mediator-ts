@@ -1,6 +1,11 @@
-import { DidcommMessage } from '@common/didcomm'
+import { DidcommMessage, DidcommMessageParams } from '@common/didcomm'
 import { Expose, Type } from 'class-transformer'
 import { Equals, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator'
+
+export type DeliveryRequestMessageParams = {
+  from: string
+  body: DeliveryRequestBody
+} & DidcommMessageParams
 
 class DeliveryRequestBody {
   @IsNumber()
@@ -25,4 +30,11 @@ export class DeliveryRequestMessage extends DidcommMessage {
   @Equals(DeliveryRequestMessage.type)
   public readonly type = DeliveryRequestMessage.type
   public static readonly type = 'https://didcomm.org/messagepickup/3.0/delivery-request'
+
+  public constructor(params?: DeliveryRequestMessageParams) {
+    super(params)
+    if (params) {
+      this.body = params.body
+    }
+  }
 }

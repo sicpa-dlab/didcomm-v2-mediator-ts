@@ -60,8 +60,10 @@ export class DidListUpdateResponseMessage extends DidcommMessage {
   public readonly type = DidListUpdateResponseMessage.type
   public static readonly type = 'https://didcomm.org/coordinate-mediation/2.0/didlist-update-response'
 
-  public constructor(params: DidListUpdatedMessageParams) {
+  public constructor(params?: DidListUpdatedMessageParams) {
     super(params)
-    this.body = params.body
+    if (params) {
+      this.body = params.body
+    }
   }
 }

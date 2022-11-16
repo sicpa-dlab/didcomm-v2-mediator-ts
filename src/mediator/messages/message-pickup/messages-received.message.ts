@@ -1,6 +1,11 @@
-import { DidcommMessage } from '@common/didcomm'
+import { DidcommMessage, DidcommMessageParams } from '@common/didcomm'
 import { Expose, Type } from 'class-transformer'
 import { ArrayNotEmpty, Equals, IsArray, IsNotEmpty, IsObject, IsString, ValidateNested } from 'class-validator'
+
+export type MessagesReceivedMessageParams = {
+  from: string
+  body: MessagesReceivedBody
+} & DidcommMessageParams
 
 class MessagesReceivedBody {
   @IsArray()
@@ -22,4 +27,11 @@ export class MessagesReceivedMessage extends DidcommMessage {
   @Equals(MessagesReceivedMessage.type)
   public readonly type = MessagesReceivedMessage.type
   public static readonly type = 'https://didcomm.org/messagepickup/3.0/messages-received'
+
+  public constructor(params?: MessagesReceivedMessageParams) {
+    super(params)
+    if (params) {
+      this.body = params.body
+    }
+  }
 }

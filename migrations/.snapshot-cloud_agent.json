@@ -123,7 +123,7 @@
         },
         "recipient": {
           "name": "recipient",
-          "type": "varchar(255)",
+          "type": "text",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,

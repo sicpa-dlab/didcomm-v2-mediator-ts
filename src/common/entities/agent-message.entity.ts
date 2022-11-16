@@ -1,6 +1,6 @@
 import { Agent } from '@common/entities/agent.entity'
 import { Identified } from '@common/entities/identified.entity'
-import { Entity, JsonType, ManyToOne, PrimaryKey, Property } from '@mikro-orm/core'
+import { Entity, JsonType, ManyToOne, PrimaryKey, Property, TextType } from '@mikro-orm/core'
 import { Attachment } from 'didcomm-node'
 import { v4 } from 'uuid'
 
@@ -10,6 +10,7 @@ export class AgentMessage implements Identified {
   public id: string
 
   @Property()
+  @Property({ type: TextType })
   public recipient: string
 
   @Property()

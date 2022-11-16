@@ -1,6 +1,11 @@
-import { DidcommMessage } from '@common/didcomm/messages/didcomm.message'
+import { DidcommMessage, DidcommMessageParams } from '@common/didcomm/messages/didcomm.message'
 import { Expose, instanceToPlain, Type } from 'class-transformer'
 import { Equals, IsNotEmpty, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator'
+
+export type InvitationMessageParams = {
+  from: string
+  body: InvitationBody
+} & DidcommMessageParams
 
 export enum GoalCode {
   MediatorProvision = 'mediator-provision',
@@ -33,5 +38,13 @@ export class InvitationMessage extends DidcommMessage {
   public toJSON({ endpoint }: { endpoint: string }) {
     const encodedInvitation = Buffer.from(JSON.stringify(instanceToPlain(this))).toString('base64')
     return `${endpoint}/api/v1?oob=${encodedInvitation}`
+  }
+
+  public constructor(params?: InvitationMessageParams) {
+    super(params)
+
+    if (params) {
+      this.body = params.body
+    }
   }
 }

@@ -17,6 +17,7 @@ import {
 import * as ed25519 from '@stablelib/ed25519'
 import { throwError } from '@utils/common'
 import { InvitationMessage } from '../../../mediator/messages/oob'
+import { GoalCode } from '../../../mediator/messages/oob/invitation'
 
 export class DidcommContext {
   public readonly did: string
@@ -111,7 +112,7 @@ export const createMediationInvitation = (did: string, endpoint: string): string
   return new InvitationMessage({
     from: did,
     body: {
-      goal_code: 'mediator-provision',
+      goalCode: GoalCode.MediatorProvision,
     },
   }).toJSON({ endpoint })
 }

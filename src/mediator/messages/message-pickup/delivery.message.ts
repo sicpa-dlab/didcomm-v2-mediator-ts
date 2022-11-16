@@ -26,10 +26,6 @@ export class DeliveryMessage extends DidcommMessage {
   public readonly type = DeliveryMessage.type
   public static readonly type = 'https://didcomm.org/messagepickup/3.0/delivery'
 
-  @IsOptional()
-  @IsString()
-  public thid?: string
-
   public attachments!: Array<Attachment>
 
   public constructor(params?: DeliveryMessageParams) {
@@ -37,7 +33,6 @@ export class DeliveryMessage extends DidcommMessage {
     if (params) {
       this.body = params.body
       this.attachments = params.attachments
-      this.thid = params.thid
     }
   }
 }

@@ -51,7 +51,6 @@ export class DidListResponseMessage extends DidcommMessage {
 
   public constructor(params?: DidListResponseMessageParams) {
     super(params)
-
     if (params) {
       this.body = params.body
     }

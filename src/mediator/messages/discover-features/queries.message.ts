@@ -1,6 +1,11 @@
-import { DidcommMessage } from '@common/didcomm'
+import { DidcommMessage, DidcommMessageParams } from '@common/didcomm'
 import { Expose, Type } from 'class-transformer'
 import { Equals, IsArray, IsNotEmpty, IsObject, IsString, ValidateNested } from 'class-validator'
+
+export type QueriesMessageParams = {
+  from: string
+  body: QueriesBody
+} & DidcommMessageParams
 
 export class QueriesBody {
   @Type(() => Query)
@@ -31,4 +36,11 @@ export class QueriesMessage extends DidcommMessage {
   @Equals(QueriesMessage.type)
   public readonly type = QueriesMessage.type
   public static readonly type = 'https://didcomm.org/discover-features/2.0/queries'
+
+  public constructor(params?: QueriesMessageParams) {
+    super(params)
+    if (params) {
+      this.body = params.body
+    }
+  }
 }
