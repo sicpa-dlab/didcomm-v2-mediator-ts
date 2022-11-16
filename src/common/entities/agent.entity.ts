@@ -15,6 +15,9 @@ export class Agent extends Identified {
   @Property({ nullable: true })
   public deliveryData?: string
 
+  @Property({ nullable: false })
+  public liveDelivery: boolean
+
   @OneToMany(() => AgentMessage, (message) => message.agent, { orphanRemoval: true })
   public messages: Collection<AgentMessage> = new Collection<AgentMessage>(this)
 
@@ -26,6 +29,7 @@ export class Agent extends Identified {
     this.did = props.did
     this.deliveryType = props.deliveryType
     this.deliveryData = props.deliveryData
+    this.liveDelivery = props.liveDelivery
   }
 }
 

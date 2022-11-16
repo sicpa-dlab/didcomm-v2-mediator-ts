@@ -26,6 +26,7 @@ export class AgentService {
       did: req.did,
       deliveryType: req.deliveryType,
       deliveryData: req.deliveryData,
+      liveDelivery: true,
     })
     logger.traceObject({ agent })
 

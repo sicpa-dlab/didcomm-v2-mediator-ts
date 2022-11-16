@@ -58,7 +58,6 @@ class StatusResponse {
     this.oldestReceivedTime = params.oldestReceivedTime
     this.recipientKey = params.recipientKey
     this.totalBytes = params.totalBytes
-    this.totalBytes = params.totalBytes
     this.liveDelivery = params.liveDelivery
   }
 }

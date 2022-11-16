@@ -1,7 +1,7 @@
 import { DidcommContext } from '@common/didcomm/providers'
 import { InjectLogger, Logger } from '@logger'
 import { Injectable } from '@nestjs/common'
-import { DisclosuresMessage, QueriesMessage } from '../messages/discover-features'
+import { DiscloseMessage, QueriesMessage } from '../messages/discover-features'
 
 @Injectable()
 export class DiscoverFeaturesService {
@@ -13,11 +13,11 @@ export class DiscoverFeaturesService {
     this.logger.child('constructor').trace('<>')
   }
 
-  public async processDiscoverFeaturesQuery(msg: QueriesMessage): Promise<DisclosuresMessage | undefined> {
+  public async processDiscoverFeaturesQuery(msg: QueriesMessage): Promise<DiscloseMessage | undefined> {
     const logger = this.logger.child('processDiscoverFeaturesQuery', { msg })
     logger.trace('>')
 
-    const res: DisclosuresMessage = new DisclosuresMessage({
+    const res: DiscloseMessage = new DiscloseMessage({
       from: this.didcommContext.did,
       to: [msg.from],
       body: {

@@ -1,2 +1,2 @@
 export { QueriesMessage } from './queries.message'
-export { DisclosuresMessage } from './disclose.message'
+export { DiscloseMessage } from './disclose.message'

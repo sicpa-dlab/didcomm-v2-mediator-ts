@@ -3,7 +3,7 @@ import { Expose, Type } from 'class-transformer'
 import { Equals, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator'
 import { Attachment } from 'didcomm'
 
-export type BatchResponseMessageParams = {
+export type DeliveryMessageParams = {
   body: DeliveryBody
   attachments: Attachment[]
   thid?: string
@@ -32,7 +32,7 @@ export class DeliveryMessage extends DidcommMessage {
 
   public attachments!: Array<Attachment>
 
-  public constructor(params?: BatchResponseMessageParams) {
+  public constructor(params?: DeliveryMessageParams) {
     super(params)
     if (params) {
       this.body = params.body

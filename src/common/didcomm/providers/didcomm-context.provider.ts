@@ -16,7 +16,7 @@ import {
 } from '@sicpa-dlab/peer-did-ts'
 import * as ed25519 from '@stablelib/ed25519'
 import { throwError } from '@utils/common'
-import { makeMediationInvitation } from '@utils/invitation'
+import { InvitationMessage } from '../../../mediator/messages/oob'
 
 export class DidcommContext {
   public readonly did: string
@@ -51,7 +51,7 @@ export const DidcommContextProvider: Provider<DidcommContext> = {
     })
     logger.traceObject({ didcommContext })
 
-    const invitation = makeMediationInvitation(didcommContext.did, expressConfig.publicUrl)
+    const invitation = createMediationInvitation(didcommContext.did, expressConfig.publicUrl)
 
     logger.info('------------------------------------------------------')
     logger.info(`MEDIATOR PROVISIONING INVITATION`)
@@ -105,4 +105,13 @@ function createDidcommContext(options: DidcommContextOptions): DidcommContext {
     publicKey: x25519Key.publicKeyBase58,
     privateKey: encodeToBase58(privateKeyX25519),
   })
+}
+
+export const createMediationInvitation = (did: string, endpoint: string): string => {
+  return new InvitationMessage({
+    from: did,
+    body: {
+      goal_code: 'mediator-provision',
+    },
+  }).toJSON({ endpoint })
 }

@@ -3,7 +3,7 @@ import { Expose, Type } from 'class-transformer'
 import { Equals, IsArray, IsNotEmpty, IsObject, IsString, ValidateNested } from 'class-validator'
 import { DidListUpdate } from '../did-list'
 
-export class DisclosuresBody {
+export class DiscloseBody {
   @Type(() => DidListUpdate)
   @IsArray()
   @ValidateNested({ each: true })
@@ -22,7 +22,7 @@ export class Disclosure {
   public roles!: string[]
 }
 
-export class DisclosuresMessage extends DidcommMessage {
+export class DiscloseMessage extends DidcommMessage {
   @IsString()
   @IsNotEmpty()
   public from!: string
@@ -33,10 +33,10 @@ export class DisclosuresMessage extends DidcommMessage {
 
   @IsObject()
   @ValidateNested()
-  @Type(() => DisclosuresBody)
-  public body!: DisclosuresBody
+  @Type(() => DiscloseBody)
+  public body!: DiscloseBody
 
-  @Equals(DisclosuresMessage.type)
-  public readonly type = DisclosuresMessage.type
-  public static readonly type = 'https://didcomm.org/discover-features/2.0/queries'
+  @Equals(DiscloseMessage.type)
+  public readonly type = DiscloseMessage.type
+  public static readonly type = 'https://didcomm.org/discover-features/2.0/disclose'
 }

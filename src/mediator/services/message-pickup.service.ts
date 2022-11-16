@@ -8,6 +8,7 @@ import { Injectable } from '@nestjs/common'
 import {
   DeliveryMessage,
   DeliveryRequestMessage,
+  LiveModeChangeMessage,
   MessagesReceivedMessage,
   StatusRequestMessage,
   StatusResponseMessage,
@@ -66,7 +67,7 @@ export class MessagePickupService {
     return deliveryMessage
   }
 
-  public async processMessagesReceived(msg: MessagesReceivedMessage): Promise<undefined> {
+  public async processMessagesReceived(msg: MessagesReceivedMessage): Promise<void> {
     const logger = this.logger.child('processListPickup', { msg })
     logger.trace('>')
 
@@ -81,14 +82,29 @@ export class MessagePickupService {
     await this.em.flush()
 
     logger.trace('<')
-    return undefined
+    return
+  }
+
+  public async processLiveModeChange(msg: LiveModeChangeMessage): Promise<void> {
+    const logger = this.logger.child('processLiveModeChange', { msg })
+    logger.trace('>')
+
+    const agent = await this.em.findOneOrFail(Agent, { did: msg.from })
+    logger.traceObject({ agent })
+
+    agent.liveDelivery = msg.body.liveDelivery
+
+    await this.em.flush()
+
+    logger.trace('<')
+    return
   }
 
   public async getUndeliveredBatchMessage(
     agent: Agent,
     batchSize: number,
     offset: number,
-  ): Promise<Promise<{ encryptedMsg: EncryptedMessage; messages: AgentMessage[] }>> {
+  ): Promise<{ encryptedMsg: EncryptedMessage; messages: AgentMessage[] }> {
     const logger = this.logger.child('processUndeliveredMessages', { agent })
     logger.trace('>')
 

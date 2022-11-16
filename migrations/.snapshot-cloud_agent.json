@@ -46,6 +46,15 @@
           "primary": false,
           "nullable": true,
           "mappedType": "string"
+        },
+        "delivery_data": {
+          "name": "live_delivery",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "boolean"
         }
       },
       "name": "agent",

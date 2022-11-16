@@ -8,7 +8,12 @@ import { IMessage } from 'didcomm-node'
 import { DidListQueryMessage, DidListUpdateMessage } from '../messages/did-list'
 import { QueriesMessage } from '../messages/discover-features'
 import { MediationRequestMessage } from '../messages/mediation'
-import { DeliveryRequestMessage, MessagesReceivedMessage, StatusRequestMessage } from '../messages/message-pickup'
+import {
+  DeliveryRequestMessage,
+  LiveModeChangeMessage,
+  MessagesReceivedMessage,
+  StatusRequestMessage,
+} from '../messages/message-pickup'
 import { TrustPingMessage } from '../messages/trust-ping'
 import { DidListService } from './did-list.service'
 import { DiscoverFeaturesService } from './discover-features.service'
@@ -79,9 +84,11 @@ export class RouterService {
           plainToInstance(DeliveryRequestMessage, plainMessage),
         )
       case MessagesReceivedMessage.type:
-        return await this.messagePickupService.processMessagesReceived(
-          plainToInstance(MessagesReceivedMessage, plainMessage),
-        )
+        await this.messagePickupService.processMessagesReceived(plainToInstance(MessagesReceivedMessage, plainMessage))
+        return undefined
+      case LiveModeChangeMessage.type:
+        await this.messagePickupService.processLiveModeChange(plainToInstance(LiveModeChangeMessage, plainMessage))
+        return undefined
       default:
         throw new Error(`Unsupported mediation message type: ${plainMessage.type}`)
     }

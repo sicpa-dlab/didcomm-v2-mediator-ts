@@ -1,10 +1,9 @@
 import { DidcommMessage } from '@common/didcomm'
 import { Expose, Type } from 'class-transformer'
 import { Equals, IsArray, IsNotEmpty, IsObject, IsString, ValidateNested } from 'class-validator'
-import { DidListUpdate } from '../did-list'
 
 export class QueriesBody {
-  @Type(() => DidListUpdate)
+  @Type(() => Query)
   @IsArray()
   @ValidateNested({ each: true })
   public queries!: Query[]
