@@ -15,7 +15,7 @@ export class DidListQuery {
   public paginate!: PaginationQuery
 }
 
-export class DidListQueryMessage extends DidcommMessage {
+export class KeyListQueryMessage extends DidcommMessage {
   @IsString()
   @IsNotEmpty()
   public from!: string
@@ -25,9 +25,9 @@ export class DidListQueryMessage extends DidcommMessage {
   @Type(() => DidListQuery)
   public body!: DidListQuery
 
-  @Equals(DidListQueryMessage.type)
-  public readonly type = DidListQueryMessage.type
-  public static readonly type = 'https://didcomm.org/coordinate-mediation/2.0/didlist-query'
+  @Equals(KeyListQueryMessage.type)
+  public readonly type = KeyListQueryMessage.type
+  public static readonly type = 'https://didcomm.org/coordinate-mediation/2.0/keylist-query'
 
   public constructor(params?: DidListQueryMessageParams) {
     super(params)

@@ -28,7 +28,7 @@ export enum DidListUpdateAction {
   Remove = 'remove',
 }
 
-export class DidListUpdateMessage extends DidcommMessage {
+export class KeyListUpdateMessage extends DidcommMessage {
   @IsString()
   @IsNotEmpty()
   public from!: string
@@ -38,9 +38,9 @@ export class DidListUpdateMessage extends DidcommMessage {
   @Type(() => DidListUpdateBody)
   public body!: DidListUpdateBody
 
-  @Equals(DidListUpdateMessage.type)
-  public readonly type = DidListUpdateMessage.type
-  public static readonly type = 'https://didcomm.org/coordinate-mediation/2.0/didlist-update'
+  @Equals(KeyListUpdateMessage.type)
+  public readonly type = KeyListUpdateMessage.type
+  public static readonly type = 'https://didcomm.org/coordinate-mediation/2.0/keylist-update'
 
   public constructor(params?: DidListUpdateMessageParams) {
     super(params)

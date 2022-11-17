@@ -7,29 +7,29 @@ import { EntityManager } from '@mikro-orm/core'
 import { Injectable } from '@nestjs/common'
 import { notFoundHandler } from '@utils/mikro-orm'
 import {
-  DidListQueryMessage,
+  KeyListQueryMessage,
   DidListResponseItem,
-  DidListResponseMessage,
+  KeyListResponseMessage,
   DidListUpdate,
   DidListUpdateAction,
   DidListUpdated,
-  DidListUpdateMessage,
-  DidListUpdateResponseMessage,
+  KeyListUpdateMessage,
+  KeyListUpdateResponseMessage,
   DidListUpdateResult,
-} from '../messages/did-list'
+} from '../messages/key-list'
 
 @Injectable()
-export class DidListService {
+export class KeyListService {
   constructor(
     private readonly didcommContext: DidcommContext,
-    @InjectLogger(DidListService)
+    @InjectLogger(KeyListService)
     private readonly logger: Logger,
     private readonly em: EntityManager,
   ) {
     this.logger.child('constructor').trace('<>')
   }
 
-  public async processDidListUpdate(msg: DidListUpdateMessage): Promise<DidListUpdateResponseMessage> {
+  public async processDidListUpdate(msg: KeyListUpdateMessage): Promise<KeyListUpdateResponseMessage> {
     const logger = this.logger.child('processDidListUpdate', { msg })
     logger.trace('>')
 
@@ -52,7 +52,7 @@ export class DidListService {
 
     await this.em.flush()
 
-    const res = new DidListUpdateResponseMessage({
+    const res = new KeyListUpdateResponseMessage({
       from: this.didcommContext.did,
       to: [agent.did],
       body: { updated: updatesResults },
@@ -61,7 +61,7 @@ export class DidListService {
     return res
   }
 
-  public async processDidListQuery(msg: DidListQueryMessage): Promise<DidListResponseMessage> {
+  public async processDidListQuery(msg: KeyListQueryMessage): Promise<KeyListResponseMessage> {
     const logger = this.logger.child('processDidListQuery', { msg })
     logger.trace('>')
 
@@ -85,7 +85,7 @@ export class DidListService {
     const remaining = didsCount - responseDids.length - offset
     const pagination = new PageInfo({ offset, count: responseDids.length, remaining })
 
-    const res = new DidListResponseMessage({
+    const res = new KeyListResponseMessage({
       from: this.didcommContext.did,
       to: [agent.did],
       body: { dids: responseDids, pagination },

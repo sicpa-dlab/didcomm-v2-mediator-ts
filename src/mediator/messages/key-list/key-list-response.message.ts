@@ -39,15 +39,15 @@ export class DidListResponseItem {
   }
 }
 
-export class DidListResponseMessage extends DidcommMessage {
+export class KeyListResponseMessage extends DidcommMessage {
   @IsObject()
   @ValidateNested()
   @Type(() => DidListResponse)
   public body!: DidListResponse
 
-  @Equals(DidListResponseMessage.type)
-  public readonly type = DidListResponseMessage.type
-  public static readonly type = 'https://didcomm.org/coordinate-mediation/2.0/didlist'
+  @Equals(KeyListResponseMessage.type)
+  public readonly type = KeyListResponseMessage.type
+  public static readonly type = 'https://didcomm.org/coordinate-mediation/2.0/keylist'
 
   public constructor(params?: DidListResponseMessageParams) {
     super(params)

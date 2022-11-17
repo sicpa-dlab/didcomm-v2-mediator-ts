@@ -1,7 +1,7 @@
 import { DidcommMessage, DidcommMessageParams } from '@common/didcomm'
 import { Expose, Type } from 'class-transformer'
 import { Equals, IsArray, IsNotEmpty, IsObject, IsString, ValidateNested } from 'class-validator'
-import { DidListUpdate } from '../did-list'
+import { DidListUpdate } from '../key-list'
 
 export enum FeatureTypes {
   Protocol = 'protocol',

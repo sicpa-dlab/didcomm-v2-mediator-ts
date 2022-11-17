@@ -1,7 +1,7 @@
 import { DidcommMessage, DidcommMessageParams } from '@common/didcomm'
 import { Expose, Type } from 'class-transformer'
 import { Equals, IsArray, IsEnum, IsInstance, IsObject, IsString, ValidateNested } from 'class-validator'
-import { DidListUpdateAction } from './did-list-update.message'
+import { DidListUpdateAction } from './key-list-update.message'
 
 export enum DidListUpdateResult {
   ClientError = 'client_error',
@@ -50,15 +50,15 @@ export class DidListUpdateResponseBody {
   }
 }
 
-export class DidListUpdateResponseMessage extends DidcommMessage {
+export class KeyListUpdateResponseMessage extends DidcommMessage {
   @IsObject()
   @ValidateNested()
   @Type(() => DidListUpdateResponseBody)
   public body!: DidListUpdateResponseBody
 
-  @Equals(DidListUpdateResponseMessage.type)
-  public readonly type = DidListUpdateResponseMessage.type
-  public static readonly type = 'https://didcomm.org/coordinate-mediation/2.0/didlist-update-response'
+  @Equals(KeyListUpdateResponseMessage.type)
+  public readonly type = KeyListUpdateResponseMessage.type
+  public static readonly type = 'https://didcomm.org/coordinate-mediation/2.0/keylist-update-response'
 
   public constructor(params?: DidListUpdatedMessageParams) {
     super(params)

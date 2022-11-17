@@ -5,7 +5,7 @@ import { InjectLogger, Logger } from '@logger'
 import { Injectable } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
 import { IMessage } from 'didcomm-node'
-import { DidListQueryMessage, DidListUpdateMessage } from '../messages/did-list'
+import { KeyListQueryMessage, KeyListUpdateMessage } from '../messages/key-list'
 import { QueriesMessage } from '../messages/discover-features'
 import { MediationRequestMessage } from '../messages/mediation'
 import {
@@ -15,7 +15,7 @@ import {
   StatusRequestMessage,
 } from '../messages/message-pickup'
 import { TrustPingMessage } from '../messages/trust-ping'
-import { DidListService } from './did-list.service'
+import { KeyListService } from './key-list.service'
 import { DiscoverFeaturesService } from './discover-features.service'
 import { MediationService } from './mediation.service'
 import { MessagePickupService } from './message-pickup.service'
@@ -25,7 +25,7 @@ export class RouterService {
   constructor(
     private readonly didcommService: DidcommService,
     private readonly mediationService: MediationService,
-    private readonly didListService: DidListService,
+    private readonly didListService: KeyListService,
     private readonly messagePickupService: MessagePickupService,
     private readonly discoverFeaturesService: DiscoverFeaturesService,
     @InjectLogger(RouterService)
@@ -74,10 +74,10 @@ export class RouterService {
         return await this.discoverFeaturesService.processDiscoverFeaturesQuery(
           plainToInstance(QueriesMessage, plainMessage),
         )
-      case DidListUpdateMessage.type:
-        return await this.didListService.processDidListUpdate(plainToInstance(DidListUpdateMessage, plainMessage))
-      case DidListQueryMessage.type:
-        return await this.didListService.processDidListQuery(plainToInstance(DidListQueryMessage, plainMessage))
+      case KeyListUpdateMessage.type:
+        return await this.didListService.processDidListUpdate(plainToInstance(KeyListUpdateMessage, plainMessage))
+      case KeyListQueryMessage.type:
+        return await this.didListService.processDidListQuery(plainToInstance(KeyListQueryMessage, plainMessage))
       case StatusRequestMessage.type:
         return await this.messagePickupService.processStatusRequest(plainToInstance(StatusRequestMessage, plainMessage))
       case DeliveryRequestMessage.type:
