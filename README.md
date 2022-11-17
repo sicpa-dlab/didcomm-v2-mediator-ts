@@ -1,8 +1,8 @@
-# Cloud Agent Mediator
+# DIDComm v2 Mediator
 
 ## Description
 
-Cloud Agent Mediator is a web service for messages mediation in VTP. Based on [NestJS](https://nestjs.com/) framework
+DIDComm v2 Mediator is a web service for messages mediation in DIDComm v2 protocols. Based on [NestJS](https://nestjs.com/) framework
 
 ## Persistence
 
