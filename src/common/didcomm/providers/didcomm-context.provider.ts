@@ -13,7 +13,7 @@ import {
   KeyType,
   PeerDid,
   PeerDidNumAlgo,
-} from '@sicpa-dlab/peer-did-ts'
+} from '@sicpa_open_source/peer-did-ts'
 import * as ed25519 from '@stablelib/ed25519'
 import { throwError } from '@utils/common'
 import { InvitationMessage } from '../../../mediator/messages/oob'

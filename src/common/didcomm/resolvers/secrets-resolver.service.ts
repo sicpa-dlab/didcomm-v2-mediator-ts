@@ -1,6 +1,6 @@
 import { InjectLogger, Logger } from '@logger'
 import { Injectable } from '@nestjs/common'
-import { KeyType } from '@sicpa-dlab/peer-did-ts'
+import { KeyType } from '@sicpa_open_source/peer-did-ts'
 import { Secret, SecretsResolver } from 'didcomm-node'
 import { DidcommContext } from '../providers'
 

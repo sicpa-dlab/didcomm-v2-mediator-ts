@@ -1,7 +1,7 @@
 import { DidResolverService } from '@common/didcomm/resolvers/did-resolver.service'
 import { InjectLogger, Logger } from '@logger'
 import { Injectable } from '@nestjs/common'
-import { DidCommService, DidCommV2Service, DidDocument, VerificationMethod } from '@sicpa-dlab/peer-did-ts'
+import { DidCommService, DidCommV2Service, DidDocument, VerificationMethod } from '@sicpa_open_source/peer-did-ts'
 import { DIDDoc, DIDResolver } from 'didcomm-node'
 
 export type DidcommDidDoc = DIDDoc

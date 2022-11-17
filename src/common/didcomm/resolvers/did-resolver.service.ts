@@ -1,6 +1,6 @@
 import { InjectLogger, Logger } from '@logger'
 import { Injectable } from '@nestjs/common'
-import { DidDocument, PeerDid, PeerDidNumAlgo } from '@sicpa-dlab/peer-did-ts'
+import { DidDocument, PeerDid, PeerDidNumAlgo } from '@sicpa_open_source/peer-did-ts'
 
 @Injectable()
 export class DidResolverService {
