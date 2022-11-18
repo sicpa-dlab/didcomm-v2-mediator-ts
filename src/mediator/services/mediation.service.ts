@@ -96,7 +96,7 @@ export class MediationService {
     await this.em.flush()
 
     // Try to deliver message
-    if (agent?.liveDelivery && agent.deliveryType && agent.deliveryData) {
+    if (agent?.liveDelivery) {
       await this.deliveryService.tryDeliverForward(agent, msg)
     }
 
